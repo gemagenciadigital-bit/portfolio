@@ -80,37 +80,51 @@ export default function ScrollyCanvas() {
   };
 
   useEffect(() => {
-    // Preload images to prevent flickering
-    const preloadImages = async () => {
-      const loadedImages: HTMLImageElement[] = [];
+    let active = true;
 
-      for (let i = 0; i < FRAME_COUNT; i++) {
+    // Aggressive Progressive Preload Strategy
+    const preloadImages = async () => {
+      // 1. Load First Frame IMMEDIATELY to unblock UI
+      const firstImg = new Image();
+      firstImg.src = getFrameSrc(0);
+      await new Promise((resolve) => {
+        firstImg.onload = () => resolve(true);
+        firstImg.onerror = () => resolve(false);
+      });
+      
+      if (!active) return;
+      imagesRef.current[0] = firstImg;
+      setImagesLoaded(true); // Unblock viewing instantly
+      requestAnimationFrame(renderCanvas);
+
+      // 2. Parallel Background Fetching for the rest
+      const loadPromises = [];
+      for (let i = 1; i < FRAME_COUNT; i++) {
         const img = new Image();
+        // Browser queues these massively in parallel
         img.src = getFrameSrc(i);
-        await new Promise((resolve) => {
+        const p = new Promise<void>((resolve) => {
           img.onload = () => {
-            resolve(true);
+            if (active) imagesRef.current[i] = img;
+            resolve();
           };
-          // Best effort loading
-          img.onerror = () => {
-            resolve(false);
-          };
+          img.onerror = () => resolve();
         });
-        loadedImages.push(img);
+        loadPromises.push(p);
       }
       
-      imagesRef.current = loadedImages;
-      setImagesLoaded(true);
-
-      // Initial draw
-      requestAnimationFrame(renderCanvas);
+      // Wait for all to cache silently
+      Promise.all(loadPromises);
     };
 
     preloadImages();
 
     // Listen for resize to recalculate canvas sizing and redraw
     window.addEventListener("resize", renderCanvas);
-    return () => window.removeEventListener("resize", renderCanvas);
+    return () => {
+      active = false;
+      window.removeEventListener("resize", renderCanvas);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
