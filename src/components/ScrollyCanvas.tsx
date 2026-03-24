@@ -10,7 +10,7 @@ import Overlay from "./Overlay";
  */
 const getFrameSrc = (index: number) => {
   const paddedIndex = index.toString().padStart(2, "0");
-  return `/sequence/frame_${paddedIndex}_delay-0.066s.png`;
+  return `/portfolio/sequence/frame_${paddedIndex}_delay-0.066s.png`;
 };
 
 const FRAME_COUNT = 80;
