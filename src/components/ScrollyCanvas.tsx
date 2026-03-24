@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll, useMotionValueEvent, MotionValue } from "framer-motion";
+import { useScroll, useMotionValueEvent } from "framer-motion";
 import Overlay from "./Overlay";
 
 /**
@@ -83,14 +83,12 @@ export default function ScrollyCanvas() {
     // Preload images to prevent flickering
     const preloadImages = async () => {
       const loadedImages: HTMLImageElement[] = [];
-      let loadedCount = 0;
 
       for (let i = 0; i < FRAME_COUNT; i++) {
         const img = new Image();
         img.src = getFrameSrc(i);
         await new Promise((resolve) => {
           img.onload = () => {
-            loadedCount++;
             resolve(true);
           };
           // Best effort loading
