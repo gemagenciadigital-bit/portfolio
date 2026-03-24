@@ -32,31 +32,49 @@ const SERVICES = [
     title: "Desarrollo de Sitios Web",
     description: "Soluciones a medida con tecnologías modernas para asegurar velocidad y conversión.",
     icon: Globe,
+    gradient: "from-blue-500 to-cyan-400",
+    glow: "group-hover:shadow-[0_0_40px_rgba(59,130,246,0.3)]",
+    border: "group-hover:border-blue-500/50",
   },
   {
     title: "Diseño para Instagram",
     description: "Creación de imágenes de alto impacto visual y un feed magnético y profesional.",
     icon: ImageIcon,
+    gradient: "from-pink-500 to-rose-400",
+    glow: "group-hover:shadow-[0_0_40px_rgba(236,72,153,0.3)]",
+    border: "group-hover:border-pink-500/50",
   },
   {
     title: "Edición de Videos REELS",
     description: "Edición de videos cortos dinámicos pensados para maximizar la retención de la audiencia.",
     icon: Video,
+    gradient: "from-violet-500 to-purple-400",
+    glow: "group-hover:shadow-[0_0_40px_rgba(139,92,246,0.3)]",
+    border: "group-hover:border-violet-500/50",
   },
   {
     title: "Campañas en Meta",
     description: "Publicidad hiper-segmentada en Facebook e Instagram para escalar el ROI.",
     icon: Megaphone,
+    gradient: "from-orange-500 to-amber-400",
+    glow: "group-hover:shadow-[0_0_40px_rgba(249,115,22,0.3)]",
+    border: "group-hover:border-orange-500/50",
   },
   {
     title: "Estrategia de Mercado",
     description: "Investigación, análisis de competencia y definición de la ruta comercial óptima.",
     icon: LineChart,
+    gradient: "from-emerald-500 to-teal-400",
+    glow: "group-hover:shadow-[0_0_40px_rgba(16,185,129,0.3)]",
+    border: "group-hover:border-emerald-500/50",
   },
   {
     title: "Optimización SEO",
     description: "Posicionamiento orgánico y escalable para ganar verdadero terreno en buscadores.",
     icon: Search,
+    gradient: "from-yellow-400 to-lime-400",
+    glow: "group-hover:shadow-[0_0_40px_rgba(250,204,21,0.3)]",
+    border: "group-hover:border-yellow-400/50",
   },
 ];
 
@@ -115,27 +133,30 @@ export default function Projects() {
       </div>
 
       {/* SECCIÓN DE MARKETING DIGITAL INTEGRAL */}
-      <div className="mx-auto max-w-7xl mt-40">
-        <div className="max-w-3xl mb-16">
-          <h2 className="text-4xl md:text-6xl font-bold text-white drop-shadow-md leading-tight">
-            Mucho más que código.
+      <div className="mx-auto max-w-7xl mt-40 relative">
+        {/* big background colorful glow */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-gradient-to-r from-blue-900/30 via-violet-900/30 to-pink-900/30 blur-[120px] pointer-events-none rounded-full" />
+
+        <div className="max-w-3xl mb-16 relative z-10">
+          <h2 className="text-4xl md:text-6xl font-bold leading-tight">
+            <span className="text-white">Mucho más que código.</span>
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-white">Marketing Digital Integral.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-pink-400 to-orange-400">Marketing Digital Integral.</span>
           </h2>
           <p className="mt-6 text-xl text-gray-400 font-light leading-relaxed">
             Mi enfoque es 360°. Un sitio web hermoso sólo es el punto de partida. Cuento con las herramientas para diseñar y ejecutar toda la ruta de captación y fidelización de tus clientes.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
           {SERVICES.map((service, idx) => {
             const Icon = service.icon;
             return (
               <div 
                 key={idx}
-                className="glass p-8 rounded-2xl hover:bg-white/5 transition-colors border border-white/5 hover:border-white/20"
+                className={`group glass p-8 rounded-2xl transition-all duration-400 border border-white/5 ${service.border} ${service.glow}`}
               >
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-6">
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${service.gradient} flex items-center justify-center mb-6 shadow-lg`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-3 tracking-wide">
