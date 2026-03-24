@@ -80,7 +80,7 @@ const SERVICES = [
 
 export default function Projects() {
   return (
-    <section className="relative w-full bg-[#0a0a0a] border-t border-white/5 py-32 px-4 md:px-20 z-20">
+    <section className="relative w-full bg-[#0a0a0a] border-t border-white/5 py-32 px-4 md:px-20 z-20 overflow-hidden">
       
       {/* SECCIÓN PORTAFOLIO WEB */}
       <div className="mx-auto max-w-7xl">
