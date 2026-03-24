@@ -8,17 +8,14 @@
 }
 
 html {
-  overflow-x: hidden;
-  max-width: 100vw;
+  overflow-x: clip;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-inter), sans-serif;
-  overflow-x: hidden;
-  max-width: 100vw;
-  position: relative;
+  overflow-x: clip;
 }
 
 /* Glassmorphism utilities */
