@@ -9,11 +9,11 @@ import Overlay from "./Overlay";
  * Converts 0 -> "00", 1 -> "01", ..., 79 -> "79"
  */
 const getFrameSrc = (index: number) => {
-  const paddedIndex = index.toString().padStart(2, "0");
-  return `/portfolio/sequence/frame_${paddedIndex}_delay-0.066s.webp`;
+  const paddedIndex = index.toString().padStart(3, "0");
+  return `/portfolio/sequence/Sequence_Hero01/frame_${paddedIndex}_delay-0.05s.webp`;
 };
 
-const FRAME_COUNT = 80;
+const FRAME_COUNT = 105;
 
 export default function ScrollyCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +77,18 @@ export default function ScrollyCanvas() {
     ctx.fillStyle = "#121212";
     ctx.fillRect(0, 0, nativeWidth, nativeHeight);
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+
+    // 4. Subtle Cinematic Overlay (Vignette)
+    // This makes the center elements (the face and UI) pop more
+    const gradient = ctx.createRadialGradient(
+      nativeWidth / 2, nativeHeight / 2, 0,
+      nativeWidth / 2, nativeHeight / 2, Math.max(nativeWidth, nativeHeight) * 0.8
+    );
+    gradient.addColorStop(0, "rgba(18, 18, 18, 0)");
+    gradient.addColorStop(1, "rgba(18, 18, 18, 0.7)");
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, nativeWidth, nativeHeight);
   };
 
   useEffect(() => {
