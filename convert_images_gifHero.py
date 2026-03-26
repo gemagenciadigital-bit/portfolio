@@ -11,7 +11,6 @@ def convert_png_to_webp(directory):
         
         try:
             with Image.open(png_path) as img:
-                # Quality 80 is usually enough for a good size/quality ratio
                 img.save(webp_path, 'webp', quality=80)
             os.remove(png_path)
             count += 1
@@ -23,5 +22,5 @@ def convert_png_to_webp(directory):
     print(f"Finished! Total {count} images converted and originals deleted.")
 
 if __name__ == "__main__":
-    target_dir = r"c:\Users\Eze\Desktop\sequence\public\sequence\Sequence_Hero01"
+    target_dir = r"c:\Users\Eze\Desktop\sequence\public\sequence\gifHero"
     convert_png_to_webp(target_dir)

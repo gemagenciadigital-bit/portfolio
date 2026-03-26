@@ -9,11 +9,11 @@ import Overlay from "./Overlay";
  * Converts 0 -> "00", 1 -> "01", ..., 79 -> "79"
  */
 const getFrameSrc = (index: number) => {
-  const paddedIndex = index.toString().padStart(3, "0");
-  return `/portfolio/sequence/Sequence_Hero01/frame_${paddedIndex}_delay-0.05s.webp`;
+  const paddedIndex = index.toString().padStart(2, "0");
+  return `/portfolio/sequence/gifHero/frame_${paddedIndex}_delay-0.062s.webp`;
 };
 
-const FRAME_COUNT = 105;
+const FRAME_COUNT = 81;
 
 export default function ScrollyCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
