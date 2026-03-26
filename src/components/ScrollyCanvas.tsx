@@ -154,21 +154,22 @@ export default function ScrollyCanvas() {
 
   return (
     <div ref={containerRef} style={{ overflowX: 'clip' }} className="relative h-[800vh] w-full bg-[#0a0a0a]">
-      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12 relative overflow-hidden">
+      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-[100dvh] w-full flex flex-col md:flex-row items-center justify-start md:justify-center p-0 md:p-12 gap-0 md:gap-12 relative overflow-hidden">
         
-        {/* BACKGROUND: Cinematic Video (Prominent on Mobile) */}
+        {/* BACKGROUND: Cinematic Video (Full-screen on Mobile) */}
         <motion.div 
            initial={{ opacity: 0, scale: 1.1 }}
            animate={{ opacity: 1, scale: 1 }}
            className="absolute inset-0 md:relative md:flex-1 w-full h-full md:h-[70vh] z-10 pointer-events-none md:pointer-events-auto"
         >
-          <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full opacity-40 md:opacity-100" />
+          {/* Subtle glow behind the person */}
+          <div className="absolute inset-0 bg-blue-600/10 blur-[150px] rounded-full opacity-60 md:opacity-100" />
           
-          <div className="relative w-full h-full bg-black/20 md:bg-white/5 backdrop-blur-sm md:backdrop-blur-md border border-white/5 md:border-white/10 rounded-none md:rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <canvas ref={canvasRef} className="w-full h-full object-cover" />
+          <div className="relative w-full h-full bg-black md:bg-white/5 backdrop-blur-none md:backdrop-blur-md border-0 md:border md:border-white/10 rounded-none md:rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <canvas ref={canvasRef} className="w-full h-full object-cover opacity-90 brightness-110" />
           </div>
 
-          {/* Status Badge (Desktop only or adjusted) */}
+          {/* Status Badge (Desktop only) */}
           <div className="hidden md:flex absolute top-6 left-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 items-center gap-3">
              <div className="relative w-2 h-2">
                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping" />
@@ -178,11 +179,11 @@ export default function ScrollyCanvas() {
           </div>
         </motion.div>
 
-        {/* HUD: Unified Terminal (Floating over video on Mobile) */}
+        {/* HUD: Unified Terminal (Floating over video) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-6 inset-x-4 h-[48vh] md:relative md:flex-1 md:inset-auto md:h-[70vh] z-20 bg-black/40 md:bg-black/50 backdrop-blur-3xl md:backdrop-blur-2xl border border-white/10 rounded-[2.5rem] md:rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col"
+          className="absolute bottom-6 inset-x-4 h-[44vh] md:relative md:flex-1 md:inset-auto md:h-[70vh] z-20 bg-black/50 md:bg-black/50 backdrop-blur-xl md:backdrop-blur-2xl border border-white/10 rounded-[2rem] md:rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.9)] flex flex-col"
         >
           {/* Terminal Window Decoration */}
           <div className="flex items-center gap-2 mb-4 md:mb-8 border-b border-white/5 pb-4 shrink-0">
