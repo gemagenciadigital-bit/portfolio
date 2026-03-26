@@ -38,7 +38,7 @@ export default function ScrollyCanvas() {
     { type: "code", text: "> sistema conectado. escalando resultados...", color: "text-emerald-400" },
     { type: "code", text: "mejorar_ventas(clientes_reales);", color: "text-purple-400" },
     { type: "code", text: "si (ventas < objetivo) { optimizar_todo(); }", color: "text-yellow-200" },
-    { type: "narrative", text: "Uniendo diseño e ingeniería.", subtext: "Visuales de alto rendimiento.", color: "text-white" },
+    { type: "narrative", text: "Diseño & Estrategia.", subtext: "Visuales de alto rendimiento.", color: "text-white" },
     { type: "code", text: "comprendiendo_el_camino_de_tu_cliente();", color: "text-cyan-400" },
     { type: "code", text: "> lanzando sistema de captación inteligente...", color: "text-white" },
     { type: "code", text: "> sistema activo. aumentando visibilidad...", color: "text-emerald-500" },
@@ -178,7 +178,7 @@ export default function ScrollyCanvas() {
                           {event.text}
                         </h2>
                         {event.subtext && (
-                          <p className="text-blue-400 text-xs md:text-sm font-medium tracking-widest uppercase">
+                          <p className="text-cyan-400 text-sm md:text-base font-medium italic tracking-widest uppercase">
                             {event.subtext}
                           </p>
                         )}
