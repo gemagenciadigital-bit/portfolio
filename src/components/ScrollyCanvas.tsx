@@ -34,11 +34,11 @@ export default function ScrollyCanvas() {
     { type: "narrative", text: "EZE", subtext: "Desarrollador Creativo.", color: "text-white" },
     { type: "code", text: "> activando motor de crecimiento v3.0...", color: "text-white/30" },
     { type: "code", text: "> sincronizando campañas en Meta Ads...", color: "text-blue-300" },
-    { type: "narrative", text: "Construyo experiencias", subtext: "Digitales y de alto impacto.", color: "text-white" },
+    { type: "narrative", text: "Construyendo Experiencias Digitales", subtext: "Digitales y de alto impacto.", color: "text-white" },
     { type: "code", text: "> sistema conectado. escalando resultados...", color: "text-emerald-400" },
     { type: "code", text: "mejorar_ventas(clientes_reales);", color: "text-purple-400" },
     { type: "code", text: "si (ventas < objetivo) { optimizar_todo(); }", color: "text-yellow-200" },
-    { type: "narrative", text: "Diseño & Estrategia.", subtext: "Visuales de alto rendimiento.", color: "text-white" },
+    { type: "narrative", text: "Diseñando Estrategias", subtext: "Visuales de alto rendimiento.", color: "text-white" },
     { type: "code", text: "comprendiendo_el_camino_de_tu_cliente();", color: "text-cyan-400" },
     { type: "code", text: "> lanzando sistema de captación inteligente...", color: "text-white" },
     { type: "code", text: "> sistema activo. aumentando visibilidad...", color: "text-emerald-500" },
@@ -131,8 +131,10 @@ export default function ScrollyCanvas() {
       requestAnimationFrame(renderCanvas);
     }
 
-    // 2. Update Terminal Text Reveal State
-    const nextIdx = Math.floor(latest * (terminalEvents.length + 1));
+    // 2. Update Terminal Text Reveal State (with Curved Progression)
+    // Using a power curve (latest^0.65) to make it more responsive at the start
+    const curvedLatest = Math.pow(latest, 0.65);
+    const nextIdx = Math.floor(curvedLatest * (terminalEvents.length + 1));
     if (nextIdx !== currentEventIdx) {
       setCurrentEventIdx(nextIdx);
     }
