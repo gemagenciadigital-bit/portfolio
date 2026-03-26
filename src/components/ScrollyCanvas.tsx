@@ -185,10 +185,10 @@ export default function ScrollyCanvas() {
           animate={{ opacity: 1 }}
           className="w-full max-w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-20 order-2 md:order-1 bg-black/80 md:bg-black/50 backdrop-blur-xl md:backdrop-blur-2xl border-t border-white/10 md:border md:border-white/10 rounded-none md:rounded-3xl p-5 md:p-10 font-mono overflow-hidden shadow-2xl flex flex-col box-border"
         >
-          {/* PROTOCOL PROGRESS: Technical Scroll Indicator */}
+          {/* PROTOCOL PROGRESS: Technical Scroll Indicator (Vibrant Orange) */}
           <motion.div 
             style={{ scaleX: smoothProgress, originX: 0 }}
-            className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent z-30 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+            className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-orange-500 to-transparent z-30 shadow-[0_0_15px_rgba(249,115,22,0.4)]"
           />
 
           {/* Terminal Window Decoration */}
