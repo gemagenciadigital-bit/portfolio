@@ -53,57 +53,87 @@ export default function ScrollyCanvas() {
 
     // --- RENDER LAYERS ---
 
-    // 1. BACKGROUND: Ambient Fill (Ambilight)
-    // We draw the same image STRETCHED and BLURRED to fill the screen
-    ctx.filter = "blur(60px) brightness(0.4) saturate(1.5)";
+    // 1. NEON BACKGROUND: Ambient Deep Glow (Teal & Orange)
+    // We draw the base color atmosphere using radial gradients
+    const bgGradient = ctx.createRadialGradient(
+      nativeWidth * 0.2, nativeHeight * 0.2, 0,
+      nativeWidth * 0.2, nativeHeight * 0.2, nativeWidth * 0.8
+    );
+    bgGradient.addColorStop(0, "rgba(0, 150, 255, 0.1)"); // Teal glow top-left
+    bgGradient.addColorStop(1, "rgba(10, 10, 15, 1)"); 
+    
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, nativeWidth, nativeHeight);
+
+    const orangeGlow = ctx.createRadialGradient(
+      nativeWidth * 0.8, nativeHeight * 0.8, 0,
+      nativeWidth * 0.8, nativeHeight * 0.8, nativeWidth * 0.6
+    );
+    orangeGlow.addColorStop(0, "rgba(255, 100, 0, 0.05)"); // Orange glow bottom-right
+    orangeGlow.addColorStop(1, "rgba(10, 10, 15, 0)");
+    ctx.fillStyle = orangeGlow;
+    ctx.fillRect(0, 0, nativeWidth, nativeHeight);
+
+    // 2. AMBILIGHT: Blurred Video Influence
+    ctx.globalAlpha = 0.3;
+    ctx.filter = "blur(80px) saturate(2)";
     const canvasRatio = nativeWidth / nativeHeight;
     const imgRatio = img.width / img.height;
-    
-    let bgWidth = nativeWidth;
-    let bgHeight = nativeHeight;
-    let bgX = 0;
-    let bgY = 0;
-
+    let bgWidth = nativeWidth * 0.8;
+    let bgHeight = nativeHeight * 0.8;
     if (imgRatio > canvasRatio) {
-      bgWidth = nativeHeight * imgRatio;
-      bgX = (nativeWidth - bgWidth) / 2;
+      bgWidth = nativeHeight * 0.8 * imgRatio;
     } else {
-      bgHeight = nativeWidth / imgRatio;
-      bgY = (nativeHeight - bgHeight) / 2;
+      bgHeight = nativeWidth * 0.8 / imgRatio;
     }
-    
-    ctx.drawImage(img, bgX, bgY, bgWidth, bgHeight);
-    ctx.filter = "none"; // Reset filter
+    ctx.drawImage(img, (nativeWidth - bgWidth) / 2, (nativeHeight - bgHeight) / 2, bgWidth, bgHeight);
+    ctx.filter = "none";
+    ctx.globalAlpha = 1.0;
 
-    // 2. GENERATIVE GRID
-    const gridSize = 50 * dpr;
-    const scrollOffset = (scrollYProgress.get() * 200) * dpr;
-    ctx.beginPath();
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
-    ctx.lineWidth = 1 * dpr;
-    
-    // Vertical lines
-    for (let x = (nativeWidth / 2) % gridSize; x < nativeWidth; x += gridSize) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, nativeHeight);
+    // 3. NEON MARKETING NEURAL NETWORK (Nodes & Connections)
+    const time = Date.now() * 0.0005;
+    const nodes = [];
+    const nodeCount = 30;
+    // Generate static-ish nodes with slight movement based on time
+    for (let i = 0; i < nodeCount; i++) {
+      const x = (Math.sin(i * 456.7 + time * 0.2) * 0.5 + 0.5) * nativeWidth;
+      const y = (Math.cos(i * 234.1 + time * 0.15) * 0.5 + 0.5) * nativeHeight;
+      nodes.push({ x, y });
     }
-    // Horizontal lines (moving with scroll)
-    for (let y = (nativeHeight / 2 + scrollOffset) % gridSize; y < nativeHeight; y += gridSize) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(nativeWidth, y);
+
+    ctx.strokeStyle = "rgba(0, 200, 255, 0.15)";
+    ctx.lineWidth = 0.5 * dpr;
+    ctx.beginPath();
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 300 * dpr) {
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+        }
+      }
     }
     ctx.stroke();
 
-    // 3. MAIN WORKSTATION VIEWPORT (The Video)
-    // We maintain a sharp resolution by not over-stretching
-    // Scale it to 80% of screen height or native width, whichever is smaller
+    // 4. FLOATING MARKETING KEYWORDS
+    const keywords = ["ROI", "DATA", "AI", "SEO", "ADS", "WEB"];
+    ctx.font = `bold ${12 * dpr}px Inter, sans-serif`;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.textAlign = "center";
+    keywords.forEach((word, i) => {
+      const x = (Math.sin(i * 123 + time * 0.1) * 0.4 + 0.5) * nativeWidth;
+      const y = (Math.cos(i * 321 + time * 0.08) * 0.4 + 0.5) * nativeHeight;
+      ctx.fillText(word, x, y);
+    });
+
+    // 5. MAIN WORKSTATION VIEWPORT (The Video)
     const maxViewportWidth = nativeWidth * 0.85;
     const maxViewportHeight = nativeHeight * 0.75;
-    
-    let finalWidth = img.width * (nativeHeight / 1080) * dpr; // Scale relative to 1080p height
+    let finalWidth = img.width * (nativeHeight / 1080) * dpr;
     let finalHeight = img.height * (nativeHeight / 1080) * dpr;
 
-    // Constrain to viewport limits
     if (finalWidth > maxViewportWidth) {
       const scale = maxViewportWidth / finalWidth;
       finalWidth *= scale;
@@ -118,20 +148,22 @@ export default function ScrollyCanvas() {
     const drawX = (nativeWidth - finalWidth) / 2;
     const drawY = (nativeHeight - finalHeight) / 2;
 
-    // Draw viewport glow/border
-    ctx.shadowBlur = 40 * dpr;
-    ctx.shadowColor = "rgba(0, 150, 255, 0.2)";
+    // Viewport Border (Neon frame)
+    ctx.strokeStyle = "rgba(0, 210, 255, 0.3)";
+    ctx.lineWidth = 2 * dpr;
+    ctx.strokeRect(drawX - 2, drawY - 2, finalWidth + 4, finalHeight + 4);
     
-    // Slight contrast/sharpness filter for the main image
-    ctx.filter = "contrast(1.1) brightness(1.05) saturate(1.1)";
+    ctx.shadowBlur = 30 * dpr;
+    ctx.shadowColor = "rgba(0, 180, 255, 0.3)";
+    ctx.filter = "contrast(1.15) brightness(1.05) saturate(1.15)";
     ctx.drawImage(img, drawX, drawY, finalWidth, finalHeight);
     ctx.filter = "none";
     ctx.shadowBlur = 0;
 
-    // 4. SCAN LINE
-    const scanPos = (Date.now() % 4000 / 4000) * nativeHeight;
-    ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
-    ctx.fillRect(0, scanPos, nativeWidth, 2 * dpr);
+    // 6. SCAN LINE (Faster Neon Pulse)
+    const scanPos = (Date.now() % 3000 / 3000) * nativeHeight;
+    ctx.fillStyle = "rgba(0, 180, 255, 0.05)";
+    ctx.fillRect(0, scanPos, nativeWidth, 1 * dpr);
   };
 
   useEffect(() => {
