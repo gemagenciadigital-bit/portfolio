@@ -153,8 +153,8 @@ export default function ScrollyCanvas() {
   const activeIdx = Math.floor(Math.max(0, currentEventIdx - 2));
 
   return (
-    <div ref={containerRef} className="relative h-[800vh] w-full bg-[#0a0a0a]">
-      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12">
+    <div ref={containerRef} style={{ overflowX: 'clip' }} className="relative h-[800vh] w-full bg-[#0a0a0a]">
+      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12">
         
         {/* LEFT: Unified Terminal (Text-heavy center) */}
         <motion.div 
@@ -174,7 +174,7 @@ export default function ScrollyCanvas() {
 
           <div className="flex-1 flex flex-col items-center justify-start text-center">
              {/* FIXED HEADER: Always Visible */}
-             <div className="mb-6 w-full animate-in fade-in slide-in-from-top duration-1000">
+             <div className="mb-2 w-full animate-in fade-in slide-in-from-top duration-1000">
                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
                   {fixedHeader.text}
                 </h2>
@@ -202,7 +202,7 @@ export default function ScrollyCanvas() {
              </div>
 
              {/* DYNAMIC SLOT: Replaces content on scroll (Aligned Top) */}
-             <div className="w-full relative min-h-[160px] md:min-h-[240px] flex items-start justify-center pt-2">
+             <div className="w-full relative min-h-[140px] md:min-h-[220px] flex items-start justify-center pt-0 mt-4">
                 {activeEvents.map((event, i) => {
                   const isVisible = i === activeIdx;
                   const isNarrative = event.type === "narrative";
@@ -220,11 +220,11 @@ export default function ScrollyCanvas() {
                     >
                       {isNarrative ? (
                         <div className="flex flex-col items-center gap-3">
-                           <h3 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-[1.1] drop-shadow-2xl px-2">
+                           <h3 className="text-2xl md:text-4xl font-extrabold text-white tracking-tighter uppercase leading-[1.1] drop-shadow-2xl px-2">
                              {event.text}
                            </h3>
                            {event.subtext && (
-                             <p className="text-cyan-400 text-xs md:text-sm font-medium italic tracking-[0.2em] uppercase">
+                             <p className="text-cyan-400 text-[10px] md:text-xs font-medium italic tracking-[0.2em] uppercase">
                                {event.subtext}
                              </p>
                            )}
