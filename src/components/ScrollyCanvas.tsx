@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll, useMotionValueEvent, motion, useSpring } from "framer-motion";
+import { useScroll, useMotionValueEvent, motion, useSpring, useTransform } from "framer-motion";
 
 /**
  * Ensures a number is padded with zeroes up to 2 digits.
@@ -265,6 +265,24 @@ export default function ScrollyCanvas() {
             </div>
           </div>
         )}
+
+        {/* Technical Scroll Indicator (Manual Reveal) */}
+        <motion.div
+           style={{ 
+             opacity: useTransform(scrollYProgress, [0, 0.03], [1, 0]),
+             pointerEvents: 'none'
+           }}
+           className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2"
+        >
+           <span className="text-[10px] md:text-xs font-mono text-cyan-400/80 tracking-widest uppercase">
+             {">>> scroll_suave_para_conectar."}
+           </span>
+           <motion.div
+             animate={{ y: [0, 8, 0] }}
+             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+             className="w-px h-12 bg-gradient-to-b from-cyan-400/50 to-transparent"
+           />
+        </motion.div>
       </div>
     </div>
   );
