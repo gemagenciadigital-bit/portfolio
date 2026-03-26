@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll, useMotionValueEvent, motion, useTransform } from "framer-motion";
+import { useScroll, useMotionValueEvent, motion } from "framer-motion";
 
 /**
  * Ensures a number is padded with zeroes up to 2 digits.
