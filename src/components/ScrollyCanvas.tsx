@@ -174,7 +174,7 @@ export default function ScrollyCanvas() {
 
           <div className="flex-1 flex flex-col items-center justify-start text-center">
              {/* FIXED HEADER: Always Visible */}
-             <div className="mb-10 w-full animate-in fade-in slide-in-from-top duration-1000">
+             <div className="mb-6 w-full animate-in fade-in slide-in-from-top duration-1000">
                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
                   {fixedHeader.text}
                 </h2>
@@ -188,7 +188,7 @@ export default function ScrollyCanvas() {
                      opacity: useTransform(smoothProgress, [0, 0.03], [1, 0]),
                      pointerEvents: 'none'
                    }}
-                   className="mt-8 flex flex-col items-center gap-2"
+                   className="mt-6 flex flex-col items-center gap-2"
                 >
                    <span className="text-[10px] md:text-xs font-mono text-cyan-400/60 tracking-widest uppercase animate-pulse">
                      {">>> scroll_suave_para_conectar."}
@@ -201,8 +201,8 @@ export default function ScrollyCanvas() {
                 </motion.div>
              </div>
 
-             {/* DYNAMIC SLOT: Replaces content on scroll */}
-             <div className="w-full relative min-h-[120px] md:min-h-[200px] flex items-center justify-center">
+             {/* DYNAMIC SLOT: Replaces content on scroll (Aligned Top) */}
+             <div className="w-full relative min-h-[160px] md:min-h-[240px] flex items-start justify-center pt-2">
                 {activeEvents.map((event, i) => {
                   const isVisible = i === activeIdx;
                   const isNarrative = event.type === "narrative";
@@ -212,14 +212,15 @@ export default function ScrollyCanvas() {
                   return (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      initial={{ opacity: 0, scale: 0.98, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
                       className="w-full"
                     >
                       {isNarrative ? (
                         <div className="flex flex-col items-center gap-3">
-                           <h3 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-[1.1] drop-shadow-2xl">
+                           <h3 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-[1.1] drop-shadow-2xl px-2">
                              {event.text}
                            </h3>
                            {event.subtext && (
@@ -230,7 +231,7 @@ export default function ScrollyCanvas() {
                         </div>
                       ) : (
                         <div className="flex flex-col items-center gap-2">
-                          <div className="flex justify-center gap-3 text-[10px] md:text-sm text-white/50 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                          <div className="flex justify-center gap-3 text-[10px] md:text-sm text-white/50 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 mx-auto">
                              <span className="text-cyan-400 font-bold tracking-widest">[{i.toString().padStart(2, '0')}]</span>
                              <span className={event.color}>{event.text}</span>
                           </div>
