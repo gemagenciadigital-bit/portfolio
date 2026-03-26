@@ -154,13 +154,13 @@ export default function ScrollyCanvas() {
 
   return (
     <div ref={containerRef} style={{ overflowX: 'clip' }} className="relative h-[800vh] w-full bg-[#0a0a0a]">
-      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-[100dvh] w-full flex flex-col md:flex-row items-stretch justify-start md:justify-center p-0 md:p-12 gap-0 md:gap-12 relative overflow-hidden">
+      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-[100dvh] w-full flex flex-col md:flex-row items-stretch justify-start md:justify-center p-0 md:p-12 gap-0 md:gap-12 relative overflow-hidden box-border">
         
         {/* VIDEO: Top 50% on Mobile, Right 50% on Desktop */}
         <motion.div 
            initial={{ opacity: 0 }}
            animate={{ opacity: 1 }}
-           className="w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-10 order-1 md:order-2 shrink-0 md:shrink"
+           className="w-full max-w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-10 order-1 md:order-2 shrink-0 md:shrink box-border overflow-hidden"
         >
           {/* Subtle glow behind the person */}
           <div className="absolute inset-0 bg-blue-600/10 blur-[150px] rounded-full opacity-60 md:opacity-100" />
@@ -183,7 +183,7 @@ export default function ScrollyCanvas() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-20 order-2 md:order-1 bg-black/80 md:bg-black/50 backdrop-blur-xl md:backdrop-blur-2xl border-t border-white/10 md:border md:border-white/10 rounded-none md:rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl flex flex-col"
+          className="w-full max-w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-20 order-2 md:order-1 bg-black/80 md:bg-black/50 backdrop-blur-xl md:backdrop-blur-2xl border-t border-white/10 md:border md:border-white/10 rounded-none md:rounded-3xl p-5 md:p-10 font-mono overflow-hidden shadow-2xl flex flex-col box-border"
         >
           {/* Terminal Window Decoration */}
           <div className="flex items-center gap-2 mb-4 md:mb-8 border-b border-white/5 pb-4 shrink-0">
@@ -253,7 +253,7 @@ export default function ScrollyCanvas() {
                            )}
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center gap-2">
+                        <div className="flex flex-col items-center gap-2 px-1">
                           <div className="flex justify-center gap-3 text-[9px] md:text-sm text-white/50 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 mx-auto backdrop-blur-sm">
                              <span className="text-cyan-400 font-bold tracking-widest">[{i.toString().padStart(2, '0')}]</span>
                              <span className={event.color}>{event.text}</span>
