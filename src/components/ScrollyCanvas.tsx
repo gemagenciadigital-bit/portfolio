@@ -154,13 +154,13 @@ export default function ScrollyCanvas() {
 
   return (
     <div ref={containerRef} style={{ overflowX: 'clip' }} className="relative h-[800vh] w-full bg-[#0a0a0a]">
-      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-[100dvh] w-full flex flex-col md:flex-row items-stretch justify-start md:justify-center p-0 md:p-12 gap-0 md:gap-12 relative overflow-hidden box-border">
+      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-[100dvh] w-full flex items-center justify-center p-0 md:p-12 gap-0 md:gap-12 relative overflow-hidden box-border">
         
-        {/* VIDEO: Top 50% on Mobile, Right 50% on Desktop */}
+        {/* VIDEO: Full-screen background on Mobile, Side-panel on Desktop */}
         <motion.div 
            initial={{ opacity: 0 }}
            animate={{ opacity: 1 }}
-           className="w-full max-w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-10 order-1 md:order-2 shrink-0 md:shrink box-border overflow-hidden"
+           className="absolute inset-0 md:relative md:flex-1 w-full h-full md:h-[70vh] z-10 box-border overflow-hidden pointer-events-none md:pointer-events-auto"
         >
           {/* Subtle glow behind the person */}
           <div className="absolute inset-0 bg-blue-600/10 blur-[150px] rounded-full opacity-60 md:opacity-100" />
@@ -170,7 +170,7 @@ export default function ScrollyCanvas() {
           </div>
 
           {/* Status Badge (Desktop only) */}
-          <div className="hidden md:flex absolute top-6 left-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 items-center gap-3">
+          <div className="hidden md:flex absolute top-6 left-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 items-center gap-3 font-mono">
              <div className="relative w-2 h-2">
                <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping" />
                <div className="absolute inset-0 bg-blue-400 rounded-full" />
@@ -179,11 +179,11 @@ export default function ScrollyCanvas() {
           </div>
         </motion.div>
 
-        {/* TERMINAL: Bottom 50% on Mobile, Left 50% on Desktop */}
+        {/* HUD: Floating Terminal on Mobile, Side-panel on Desktop */}
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="w-full max-w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-20 order-2 md:order-1 bg-black/80 md:bg-black/50 backdrop-blur-xl md:backdrop-blur-2xl border-t border-white/10 md:border md:border-white/10 rounded-none md:rounded-3xl p-5 md:p-10 font-mono overflow-hidden shadow-2xl flex flex-col box-border"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute bottom-6 inset-x-4 h-[46vh] md:relative md:flex-1 md:inset-auto md:h-[70vh] z-20 bg-black/40 md:bg-black/50 backdrop-blur-3xl md:backdrop-blur-2xl border border-white/15 md:border-white/10 rounded-[2.5rem] md:rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95)] flex flex-col box-border"
         >
           {/* Terminal Window Decoration */}
           <div className="flex items-center gap-2 mb-4 md:mb-8 border-b border-white/5 pb-4 shrink-0">
@@ -192,7 +192,7 @@ export default function ScrollyCanvas() {
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
               <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
             </div>
-            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold italic">split.interface.v5</span>
+            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold italic">hud.interface.v6</span>
           </div>
 
           <div className="flex-1 flex flex-col items-center justify-start text-center">
@@ -224,7 +224,7 @@ export default function ScrollyCanvas() {
                 </motion.div>
              </div>
 
-             {/* DYNAMIC SLOT: Content aligned below branding */}
+             {/* DYNAMIC SLOT: Narrative / Logs */}
              <div className="w-full relative min-h-[140px] md:min-h-[220px] flex items-start justify-center pt-0 mt-2">
                 {activeEvents.map((event, i) => {
                   const isVisible = i === activeIdx;
