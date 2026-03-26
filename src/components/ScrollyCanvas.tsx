@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll, useMotionValueEvent, motion } from "framer-motion";
+import { useScroll, useMotionValueEvent, motion, useSpring } from "framer-motion";
 
 /**
  * Ensures a number is padded with zeroes up to 2 digits.
@@ -26,6 +26,13 @@ export default function ScrollyCanvas() {
     offset: ["start start", "end end"],
   });
 
+  // Inertia for smoother video frames and terminal transitions
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
   const [currentEventIdx, setCurrentEventIdx] = useState(0);
 
   // Integrated Narrative & Code Events (Human-Centric & Strategic)
@@ -34,7 +41,7 @@ export default function ScrollyCanvas() {
     { type: "narrative", text: "EZE", subtext: "Desarrollador Creativo.", color: "text-white" },
     { type: "code", text: "> activando motor de crecimiento v3.0...", color: "text-white/30" },
     { type: "code", text: "> sincronizando campañas en Meta Ads...", color: "text-blue-300" },
-    { type: "narrative", text: "Construyendo Experiencias Digitales", subtext: "Digitales y de alto impacto.", color: "text-white" },
+    { type: "narrative", text: "Construyendo Experiencias", subtext: "Digitales de alto impacto", color: "text-white" },
     { type: "code", text: "> sistema conectado. escalando resultados...", color: "text-emerald-400" },
     { type: "code", text: "mejorar_ventas(clientes_reales);", color: "text-purple-400" },
     { type: "code", text: "si (ventas < objetivo) { optimizar_todo(); }", color: "text-yellow-200" },
@@ -121,7 +128,7 @@ export default function ScrollyCanvas() {
     return () => { active = false; window.removeEventListener("resize", renderCanvas); };
   }, []);
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
     if (!imagesLoaded) return;
     
     // 1. Update Video Frame
@@ -132,7 +139,7 @@ export default function ScrollyCanvas() {
     }
 
     // 2. Update Terminal Text Reveal State (with Curved Progression)
-    // Using a power curve (latest^0.65) to make it more responsive at the start
+    // Using a power curve to make it more responsive at the start
     const curvedLatest = Math.pow(latest, 0.65);
     const nextIdx = Math.floor(curvedLatest * (terminalEvents.length + 1));
     if (nextIdx !== currentEventIdx) {
