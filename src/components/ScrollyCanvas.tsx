@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useScroll, useMotionValueEvent, motion, useTransform } from "framer-motion";
-import Overlay from "./Overlay";
 
 /**
  * Ensures a number is padded with zeroes up to 2 digits.
@@ -27,22 +26,25 @@ export default function ScrollyCanvas() {
     offset: ["start start", "end end"],
   });
 
-  // Code Terminal Data
-  const codeLines = [
-    { text: "> initializing marketing-os v1.0.4...", color: "text-blue-400" },
-    { text: "> loading neural_marketing_engine...", color: "text-white/50" },
-    { text: "> connecting to google-ads-api...", color: "text-blue-200" },
-    { text: "> connected successfully.", color: "text-emerald-400" },
-    { text: "const roi = scale_impact(data_stream);", color: "text-purple-400" },
-    { text: "if (conversion < benchmark) { optimize(); }", color: "text-yellow-200" },
-    { text: "ai.analyze_customer_journey(path);", color: "text-cyan-400" },
-    { text: "> deploying AI-driven funnel...", color: "text-white" },
-    { text: "> funnel active: ROI +240%", color: "text-emerald-500" },
-    { text: "portfolio.show_projects();", color: "text-blue-400/80" },
+  // Integrated Narrative & Code Events
+  const terminalEvents = [
+    { type: "code", text: "> initializing marketing-os v1.0.4...", color: "text-blue-400" },
+    { type: "narrative", text: "EZE", subtext: "Desarrollador Creativo.", color: "text-white" },
+    { type: "code", text: "> loading neural_marketing_engine...", color: "text-white/30" },
+    { type: "code", text: "> connecting to google-ads-api...", color: "text-blue-300" },
+    { type: "narrative", text: "Construyo experiencias", subtext: "Digitales y de alto impacto.", color: "text-white" },
+    { type: "code", text: "> connected successfully. latency: 12ms", color: "text-emerald-400" },
+    { type: "code", text: "const roi = scale_impact(data_stream);", color: "text-purple-400" },
+    { type: "code", text: "if (conversion < benchmark) { optimize(); }", color: "text-yellow-200" },
+    { type: "narrative", text: "Uniendo diseño e ingeniería.", subtext: "Visuales de alto rendimiento.", color: "text-white" },
+    { type: "code", text: "ai.analyze_customer_journey(path);", color: "text-cyan-400" },
+    { type: "code", text: "> deploying AI-driven funnel...", color: "text-white" },
+    { type: "code", text: "> funnel active: ROI +240%", color: "text-emerald-500" },
+    { type: "code", text: "portfolio.show_projects();", color: "text-blue-400" },
   ];
 
-  const visibleCodeCount = useTransform(scrollYProgress, [0, 0.8], [0, codeLines.length]);
-  const currentLineIndex = Math.floor(visibleCodeCount.get());
+  const visibleEventCount = useTransform(scrollYProgress, [0, 0.9], [0, terminalEvents.length]);
+  const currentEventIdx = Math.floor(visibleEventCount.get());
 
   const renderCanvas = () => {
     if (!canvasRef.current || !imagesRef.current.length) return;
@@ -67,7 +69,6 @@ export default function ScrollyCanvas() {
 
     ctx.clearRect(0, 0, nativeWidth, nativeHeight);
     
-    // Fit image to canvas (Contain)
     const imgRatio = img.width / img.height;
     const canvasRatio = nativeWidth / nativeHeight;
     let drawWidth = nativeWidth;
@@ -131,79 +132,99 @@ export default function ScrollyCanvas() {
   });
 
   return (
-    <div ref={containerRef} className="relative h-[600vh] w-full bg-[#0a0a0a]">
-      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-8">
+    <div ref={containerRef} className="relative h-[800vh] w-full bg-[#0a0a0a]">
+      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12">
         
-        {/* LEFT: Code Terminal (Double Narrative) */}
+        {/* LEFT: Unified Terminal (Text-heavy center) */}
         <motion.div 
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          className="flex-1 w-full h-[40vh] md:h-[60vh] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 font-mono overflow-hidden shadow-2xl relative"
+          className="flex-1 w-full h-[50vh] md:h-[70vh] bg-black/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl relative"
         >
           {/* Terminal Window Decoration */}
-          <div className="flex gap-2 mb-6">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
-            <span className="ml-2 text-[10px] text-white/20 tracking-widest uppercase">system_executor.sh</span>
+          <div className="flex items-center gap-2 mb-8 border-b border-white/5 pb-4">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/30" />
+              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
+            </div>
+            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold">digital_architect.sh v2.0.0</span>
           </div>
 
-          <div className="space-y-3">
-             {codeLines.map((line, i) => (
-               <motion.div
-                 key={i}
-                 initial={{ opacity: 0, y: 5 }}
-                 animate={i <= currentLineIndex ? { opacity: 1, y: 0 } : { opacity: 0 }}
-                 className={`text-xs md:text-sm ${line.color} leading-relaxed flex items-start gap-2`}
-               >
-                 <span className="text-white/10 select-none">{i + 1}</span>
-                 <span>{line.text}</span>
-               </motion.div>
-             ))}
-             {/* Blinking Cursor */}
+          {/* Scrolling Event List */}
+          <div className="space-y-6 flex flex-col items-center text-center h-full">
+             {terminalEvents.map((event, i) => {
+               const isNarrative = event.type === "narrative";
+               const isVisible = i <= currentEventIdx;
+               
+               return (
+                 <motion.div
+                   key={i}
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                   transition={{ duration: 0.5 }}
+                   className={`w-full ${isNarrative ? "py-4" : "opacity-60"}`}
+                 >
+                   {isNarrative ? (
+                     <div className="flex flex-col items-center gap-2">
+                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
+                          {event.text}
+                        </h2>
+                        {event.subtext && (
+                          <p className="text-blue-400 text-xs md:text-sm font-medium tracking-widest uppercase">
+                            {event.subtext}
+                          </p>
+                        )}
+                     </div>
+                   ) : (
+                     <div className="flex justify-center gap-3 text-[10px] md:text-xs text-white/50">
+                        <span className="text-white/10 select-none">[{i.toString().padStart(2, '0')}]</span>
+                        <span className={event.color}>{event.text}</span>
+                     </div>
+                   )}
+                 </motion.div>
+               );
+             })}
+             
+             {/* Dynamic Cursor at active point */}
              <motion.div 
                animate={{ opacity: [1, 0] }}
-               transition={{ duration: 0.8, repeat: Infinity }}
-               className="w-2 h-4 bg-emerald-400/50 ml-6"
+               transition={{ duration: 0.6, repeat: Infinity }}
+               className="w-3 h-1 bg-blue-500/80 mt-2"
              />
           </div>
 
-          {/* Background Data Stream (Visual only) */}
-          <div className="absolute bottom-0 right-0 p-4 opacity-5 pointer-events-none text-[80px] font-black italic select-none -rotate-12 translate-x-12 translate-y-12">
-            CODING
-          </div>
+          {/* Background Decorative Grid */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
         </motion.div>
 
-        {/* RIGHT: Human Mastermind (The Persona) */}
+        {/* RIGHT: Visual Interaction */}
         <motion.div 
            initial={{ x: 100, opacity: 0 }}
            animate={{ x: 0, opacity: 1 }}
-           className="flex-1 w-full h-[40vh] md:h-[60vh] relative group"
+           className="flex-1 w-full h-[40vh] md:h-[70vh] relative group z-10"
         >
-          <div className="absolute inset-0 bg-blue-600/5 blur-[100px] rounded-full group-hover:bg-blue-600/10 transition-colors duration-1000" />
+          <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full" />
           
-          <div className="relative w-full h-full bg-white/5 backdrop-blur-sm border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
+          <div className="relative w-full h-full bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
             <canvas ref={canvasRef} className="w-full h-full" />
-            
-            {/* Interaction Glitch Overlay */}
-            <div className="absolute inset-0 pointer-events-none border-[20px] border-transparent border-t-white/5 mix-blend-overlay" />
           </div>
 
-          {/* Tech Detail (Floating Tag) */}
-          <div className="absolute -top-4 -right-4 bg-white/10 backdrop-blur-md border border-white/10 rounded-full px-4 py-1.5 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-            <span className="text-[10px] text-white/50 tracking-widest font-bold uppercase">Persona Integrated</span>
+          {/* Status Badge */}
+          <div className="absolute top-6 left-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 flex items-center gap-3">
+             <div className="relative w-2 h-2">
+               <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping" />
+               <div className="absolute inset-0 bg-blue-400 rounded-full" />
+             </div>
+             <span className="text-[9px] text-white/60 tracking-[0.3em] font-bold uppercase">Streaming live protocol</span>
           </div>
         </motion.div>
 
-        {/* Overlay text elements */}
-        {imagesLoaded && <Overlay scrollYProgress={scrollYProgress} />}
-
         {!imagesLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-50">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-10 h-10 border-2 border-white/5 border-t-emerald-400 rounded-full animate-spin" />
-              <p className="text-white/20 tracking-widest text-[10px] uppercase font-bold">Booting Marketing-OS</p>
+            <div className="flex flex-col items-center gap-6">
+              <div className="w-12 h-12 border-2 border-white/5 border-t-blue-500 rounded-full animate-spin" />
+              <p className="text-white/10 tracking-[0.5em] text-[10px] uppercase font-bold animate-pulse">Syncing Persona</p>
             </div>
           </div>
         )}
