@@ -135,45 +135,48 @@ export default function ScrollyCanvas() {
   });
 
   return (
-    <div ref={containerRef} className="relative h-[600vh] w-full bg-[#0a0a0a] overflow-hidden">
-      {/* Background Visual Layer: Fixed Particle/Dot Mesh */}
-      <div className="fixed inset-0 pointer-events-none opacity-20">
+    <div ref={containerRef} className="relative h-[600vh] w-full bg-[#0a0a0a]">
+      {/* BACKGROUND LAYER: Fixed across the entire screen */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px]" />
       </div>
 
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center">
+      <div className="sticky top-0 left-0 h-screen w-full flex items-center justify-center overflow-hidden">
         {/* PARALLAX LAYER 1: The Human (Canvas) */}
         <motion.div 
           style={{ y: yHuman, opacity: opacityHuman }}
-          className="relative w-[80vw] h-[70vh] max-w-4xl z-10"
+          className="relative w-[85vw] h-[75vh] max-w-5xl z-20 flex items-center justify-center"
         >
           <canvas
             ref={canvasRef}
-            className="w-full h-full drop-shadow-[0_0_50px_rgba(0,180,255,0.2)]"
+            className="w-full h-full drop-shadow-[0_0_60px_rgba(0,180,255,0.15)]"
           />
         </motion.div>
 
         {/* PARALLAX LAYER 2: Floating Digital Assets (Fast) */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <motion.div style={{ y: yDataFast }} className="absolute top-[20%] left-[10%] text-blue-400/30 text-8xl font-black italic">ROI</motion.div>
-          <motion.div style={{ y: yDataSlow }} className="absolute top-[60%] right-[15%] text-purple-400/30 text-7xl font-black transition-colors">DATA</motion.div>
-          <motion.div style={{ y: yDataFast }} className="absolute bottom-[10%] left-[20%] text-emerald-400/20 text-9xl font-black">AI</motion.div>
-          <motion.div style={{ y: yDataSlow }} className="absolute top-[40%] left-[5%] text-white/10 text-6xl font-black">ADS</motion.div>
-          <motion.div style={{ y: yDataFast }} className="absolute top-[15%] right-[5%] text-cyan-400/20 text-8xl font-black tracking-tighter">SEO</motion.div>
+        <div className="absolute inset-0 pointer-events-none z-30">
+          <motion.div style={{ y: yDataFast }} className="absolute top-[15%] left-[12%] text-blue-400/25 text-8xl font-black italic select-none">ROI</motion.div>
+          <motion.div style={{ y: yDataSlow }} className="absolute top-[65%] right-[10%] text-purple-400/25 text-7xl font-black select-none">DATA</motion.div>
+          <motion.div style={{ y: yDataFast }} className="absolute bottom-[15%] left-[18%] text-emerald-400/20 text-9xl font-black select-none">AI</motion.div>
+          <motion.div style={{ y: yDataSlow }} className="absolute top-[45%] left-[8%] text-white/5 text-6xl font-black select-none">ADS</motion.div>
+          <motion.div style={{ y: yDataFast }} className="absolute top-[10%] right-[8%] text-cyan-400/20 text-8xl font-black tracking-tighter select-none">SEO</motion.div>
         </div>
 
-        {/* PARALLAX LAYER 3: Dynamic Glows */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 -left-20 w-80 h-80 bg-blue-600/10 blur-[120px] rounded-full" />
-          <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-purple-600/10 blur-[120px] rounded-full" />
+        {/* PARALLAX LAYER 3: Dynamic Ambient Glows */}
+        <div className="absolute inset-0 pointer-events-none z-10">
+          <div className="absolute top-1/4 -left-40 w-[500px] h-[500px] bg-blue-600/10 blur-[150px] rounded-full" />
+          <div className="absolute bottom-1/4 -right-40 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full" />
         </div>
 
-        {/* Overlay Content */}
+        {/* Text Content Overlay */}
         {imagesLoaded && <Overlay scrollYProgress={rawScroll} />}
 
         {!imagesLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-50">
-            <p className="text-white/20 tracking-widest text-[10px] uppercase font-bold animate-pulse">Synchronizing Marketing Interface</p>
+             <div className="flex flex-col items-center gap-4">
+              <div className="w-8 h-8 border-2 border-white/5 border-t-white/40 rounded-full animate-spin" />
+              <p className="text-white/10 tracking-[0.4em] text-[10px] uppercase font-bold">Initializing Hologram</p>
+            </div>
           </div>
         )}
       </div>
