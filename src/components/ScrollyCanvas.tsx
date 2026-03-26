@@ -154,19 +154,19 @@ export default function ScrollyCanvas() {
 
   return (
     <div ref={containerRef} style={{ overflowX: 'clip' }} className="relative h-[800vh] w-full bg-[#0a0a0a]">
-      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-[100dvh] w-full flex flex-col md:flex-row items-center justify-start md:justify-center p-0 md:p-12 gap-0 md:gap-12 relative overflow-hidden">
+      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-[100dvh] w-full flex flex-col md:flex-row items-stretch justify-start md:justify-center p-0 md:p-12 gap-0 md:gap-12 relative overflow-hidden">
         
-        {/* BACKGROUND: Cinematic Video (Full-screen on Mobile) */}
+        {/* VIDEO: Top 50% on Mobile, Right 50% on Desktop */}
         <motion.div 
-           initial={{ opacity: 0, scale: 1.1 }}
-           animate={{ opacity: 1, scale: 1 }}
-           className="absolute inset-0 md:relative md:flex-1 w-full h-full md:h-[70vh] z-10 pointer-events-none md:pointer-events-auto"
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           className="w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-10 order-1 md:order-2 shrink-0 md:shrink"
         >
           {/* Subtle glow behind the person */}
           <div className="absolute inset-0 bg-blue-600/10 blur-[150px] rounded-full opacity-60 md:opacity-100" />
           
           <div className="relative w-full h-full bg-black md:bg-white/5 backdrop-blur-none md:backdrop-blur-md border-0 md:border md:border-white/10 rounded-none md:rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <canvas ref={canvasRef} className="w-full h-full object-cover opacity-90 brightness-110" />
+            <canvas ref={canvasRef} className="w-full h-full object-cover brightness-110" />
           </div>
 
           {/* Status Badge (Desktop only) */}
@@ -179,11 +179,11 @@ export default function ScrollyCanvas() {
           </div>
         </motion.div>
 
-        {/* HUD: Unified Terminal (Floating over video) */}
+        {/* TERMINAL: Bottom 50% on Mobile, Left 50% on Desktop */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute bottom-6 inset-x-4 h-[44vh] md:relative md:flex-1 md:inset-auto md:h-[70vh] z-20 bg-black/50 md:bg-black/50 backdrop-blur-xl md:backdrop-blur-2xl border border-white/10 rounded-[2rem] md:rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.9)] flex flex-col"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="w-full h-[50dvh] md:h-[70vh] md:flex-1 relative z-20 order-2 md:order-1 bg-black/80 md:bg-black/50 backdrop-blur-xl md:backdrop-blur-2xl border-t border-white/10 md:border md:border-white/10 rounded-none md:rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl flex flex-col"
         >
           {/* Terminal Window Decoration */}
           <div className="flex items-center gap-2 mb-4 md:mb-8 border-b border-white/5 pb-4 shrink-0">
@@ -192,7 +192,7 @@ export default function ScrollyCanvas() {
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
               <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
             </div>
-            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold italic">hud.architecture.v4</span>
+            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold italic">split.interface.v5</span>
           </div>
 
           <div className="flex-1 flex flex-col items-center justify-start text-center">
@@ -205,13 +205,13 @@ export default function ScrollyCanvas() {
                   {fixedHeader.subtext}
                 </p>
 
-                {/* Integrated Scroll Indicator (More subtle) */}
+                {/* Integrated Scroll Indicator */}
                 <motion.div
                    style={{ 
                      opacity: useTransform(smoothProgress, [0, 0.03], [1, 0]),
                      pointerEvents: 'none'
                    }}
-                   className="mt-4 flex flex-col items-center gap-1"
+                   className="mt-2 md:mt-4 flex flex-col items-center gap-1"
                 >
                    <span className="text-[9px] md:text-xs font-mono text-cyan-400/50 tracking-widest uppercase italic">
                      {">>> scroll_suave_para_conectar."}
@@ -219,12 +219,12 @@ export default function ScrollyCanvas() {
                    <motion.div
                      animate={{ y: [0, 4, 0] }}
                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                     className="w-px h-8 bg-gradient-to-b from-cyan-400/20 to-transparent"
+                     className="w-px h-6 md:h-8 bg-gradient-to-b from-cyan-400/20 to-transparent"
                    />
                 </motion.div>
              </div>
 
-             {/* DYNAMIC SLOT: Content aligned below the branding */}
+             {/* DYNAMIC SLOT: Content aligned below branding */}
              <div className="w-full relative min-h-[140px] md:min-h-[220px] flex items-start justify-center pt-0 mt-2">
                 {activeEvents.map((event, i) => {
                   const isVisible = i === activeIdx;
@@ -269,7 +269,7 @@ export default function ScrollyCanvas() {
              <motion.div 
                animate={{ opacity: [1, 0] }}
                transition={{ duration: 0.6, repeat: Infinity }}
-               className="w-6 h-0.5 bg-cyan-500/30 mt-auto mb-2"
+               className="w-6 h-0.5 bg-cyan-500/20 mt-auto mb-2"
              />
           </div>
 
