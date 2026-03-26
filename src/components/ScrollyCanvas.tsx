@@ -22,16 +22,27 @@ export default function ScrollyCanvas() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const currentFrameRef = useRef(0);
 
-  const { scrollYProgress: rawScroll } = useScroll({
+  const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  // Parallax Values for different layers
-  const yHuman = useTransform(rawScroll, [0, 1], [0, -100]); // Slower movement
-  const yDataFast = useTransform(rawScroll, [0, 1], [0, -400]); // Faster movement
-  const yDataSlow = useTransform(rawScroll, [0, 1], [0, -200]); // Mid movement
-  const opacityHuman = useTransform(rawScroll, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);
+  // Code Terminal Data
+  const codeLines = [
+    { text: "> initializing marketing-os v1.0.4...", color: "text-blue-400" },
+    { text: "> loading neural_marketing_engine...", color: "text-white/50" },
+    { text: "> connecting to google-ads-api...", color: "text-blue-200" },
+    { text: "> connected successfully.", color: "text-emerald-400" },
+    { text: "const roi = scale_impact(data_stream);", color: "text-purple-400" },
+    { text: "if (conversion < benchmark) { optimize(); }", color: "text-yellow-200" },
+    { text: "ai.analyze_customer_journey(path);", color: "text-cyan-400" },
+    { text: "> deploying AI-driven funnel...", color: "text-white" },
+    { text: "> funnel active: ROI +240%", color: "text-emerald-500" },
+    { text: "portfolio.show_projects();", color: "text-blue-400/80" },
+  ];
+
+  const visibleCodeCount = useTransform(scrollYProgress, [0, 0.8], [0, codeLines.length]);
+  const currentLineIndex = Math.floor(visibleCodeCount.get());
 
   const renderCanvas = () => {
     if (!canvasRef.current || !imagesRef.current.length) return;
@@ -54,10 +65,11 @@ export default function ScrollyCanvas() {
       canvas.height = nativeHeight;
     }
 
-    // Centered Object-Fit: Contain logic within the canvas
-    const canvasRatio = nativeWidth / nativeHeight;
-    const imgRatio = img.width / img.height;
+    ctx.clearRect(0, 0, nativeWidth, nativeHeight);
     
+    // Fit image to canvas (Contain)
+    const imgRatio = img.width / img.height;
+    const canvasRatio = nativeWidth / nativeHeight;
     let drawWidth = nativeWidth;
     let drawHeight = nativeHeight;
     let offsetX = 0;
@@ -73,19 +85,14 @@ export default function ScrollyCanvas() {
       offsetX = (nativeWidth - drawWidth) / 2;
     }
 
-    ctx.clearRect(0, 0, nativeWidth, nativeHeight);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
-    
-    // Slight Holographic Glow/Filter
-    ctx.filter = "contrast(1.1) brightness(1.2) saturate(1.1)";
+    ctx.filter = "contrast(1.1) brightness(1.1) saturate(1.1)";
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-    ctx.filter = "none";
   };
 
   useEffect(() => {
     let active = true;
-
     const preloadImages = async () => {
       const firstImg = new Image();
       firstImg.src = getFrameSrc(0);
@@ -93,39 +100,28 @@ export default function ScrollyCanvas() {
         firstImg.onload = () => resolve(true);
         firstImg.onerror = () => resolve(false);
       });
-      
       if (!active) return;
       imagesRef.current[0] = firstImg;
       setImagesLoaded(true);
       requestAnimationFrame(renderCanvas);
-
       const loadPromises = [];
       for (let i = 1; i < FRAME_COUNT; i++) {
         const img = new Image();
         img.src = getFrameSrc(i);
         const p = new Promise<void>((resolve) => {
-          img.onload = () => {
-            if (active) imagesRef.current[i] = img;
-            resolve();
-          };
+          img.onload = () => { if (active) imagesRef.current[i] = img; resolve(); };
           img.onerror = () => resolve();
         });
         loadPromises.push(p);
       }
       Promise.all(loadPromises);
     };
-
     preloadImages();
-
     window.addEventListener("resize", renderCanvas);
-    return () => {
-      active = false;
-      window.removeEventListener("resize", renderCanvas);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { active = false; window.removeEventListener("resize", renderCanvas); };
   }, []);
 
-  useMotionValueEvent(rawScroll, "change", (latest) => {
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (!imagesLoaded) return;
     const frameIndex = Math.min(FRAME_COUNT - 1, Math.floor(latest * FRAME_COUNT));
     if (frameIndex !== currentFrameRef.current) {
@@ -136,46 +132,78 @@ export default function ScrollyCanvas() {
 
   return (
     <div ref={containerRef} className="relative h-[600vh] w-full bg-[#0a0a0a]">
-      {/* BACKGROUND LAYER: Fixed across the entire screen */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px]" />
-      </div>
-
-      <div className="sticky top-0 left-0 h-screen w-full flex items-center justify-center overflow-hidden">
-        {/* PARALLAX LAYER 1: The Human (Canvas) */}
+      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-8">
+        
+        {/* LEFT: Code Terminal (Double Narrative) */}
         <motion.div 
-          style={{ y: yHuman, opacity: opacityHuman }}
-          className="relative w-[85vw] h-[75vh] max-w-5xl z-20 flex items-center justify-center"
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="flex-1 w-full h-[40vh] md:h-[60vh] bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 font-mono overflow-hidden shadow-2xl relative"
         >
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full drop-shadow-[0_0_60px_rgba(0,180,255,0.15)]"
-          />
+          {/* Terminal Window Decoration */}
+          <div className="flex gap-2 mb-6">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
+            <span className="ml-2 text-[10px] text-white/20 tracking-widest uppercase">system_executor.sh</span>
+          </div>
+
+          <div className="space-y-3">
+             {codeLines.map((line, i) => (
+               <motion.div
+                 key={i}
+                 initial={{ opacity: 0, y: 5 }}
+                 animate={i <= currentLineIndex ? { opacity: 1, y: 0 } : { opacity: 0 }}
+                 className={`text-xs md:text-sm ${line.color} leading-relaxed flex items-start gap-2`}
+               >
+                 <span className="text-white/10 select-none">{i + 1}</span>
+                 <span>{line.text}</span>
+               </motion.div>
+             ))}
+             {/* Blinking Cursor */}
+             <motion.div 
+               animate={{ opacity: [1, 0] }}
+               transition={{ duration: 0.8, repeat: Infinity }}
+               className="w-2 h-4 bg-emerald-400/50 ml-6"
+             />
+          </div>
+
+          {/* Background Data Stream (Visual only) */}
+          <div className="absolute bottom-0 right-0 p-4 opacity-5 pointer-events-none text-[80px] font-black italic select-none -rotate-12 translate-x-12 translate-y-12">
+            CODING
+          </div>
         </motion.div>
 
-        {/* PARALLAX LAYER 2: Floating Digital Assets (Fast) */}
-        <div className="absolute inset-0 pointer-events-none z-30">
-          <motion.div style={{ y: yDataFast }} className="absolute top-[15%] left-[12%] text-blue-400/25 text-8xl font-black italic select-none">ROI</motion.div>
-          <motion.div style={{ y: yDataSlow }} className="absolute top-[65%] right-[10%] text-purple-400/25 text-7xl font-black select-none">DATA</motion.div>
-          <motion.div style={{ y: yDataFast }} className="absolute bottom-[15%] left-[18%] text-emerald-400/20 text-9xl font-black select-none">AI</motion.div>
-          <motion.div style={{ y: yDataSlow }} className="absolute top-[45%] left-[8%] text-white/5 text-6xl font-black select-none">ADS</motion.div>
-          <motion.div style={{ y: yDataFast }} className="absolute top-[10%] right-[8%] text-cyan-400/20 text-8xl font-black tracking-tighter select-none">SEO</motion.div>
-        </div>
+        {/* RIGHT: Human Mastermind (The Persona) */}
+        <motion.div 
+           initial={{ x: 100, opacity: 0 }}
+           animate={{ x: 0, opacity: 1 }}
+           className="flex-1 w-full h-[40vh] md:h-[60vh] relative group"
+        >
+          <div className="absolute inset-0 bg-blue-600/5 blur-[100px] rounded-full group-hover:bg-blue-600/10 transition-colors duration-1000" />
+          
+          <div className="relative w-full h-full bg-white/5 backdrop-blur-sm border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
+            <canvas ref={canvasRef} className="w-full h-full" />
+            
+            {/* Interaction Glitch Overlay */}
+            <div className="absolute inset-0 pointer-events-none border-[20px] border-transparent border-t-white/5 mix-blend-overlay" />
+          </div>
 
-        {/* PARALLAX LAYER 3: Dynamic Ambient Glows */}
-        <div className="absolute inset-0 pointer-events-none z-10">
-          <div className="absolute top-1/4 -left-40 w-[500px] h-[500px] bg-blue-600/10 blur-[150px] rounded-full" />
-          <div className="absolute bottom-1/4 -right-40 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full" />
-        </div>
+          {/* Tech Detail (Floating Tag) */}
+          <div className="absolute -top-4 -right-4 bg-white/10 backdrop-blur-md border border-white/10 rounded-full px-4 py-1.5 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+            <span className="text-[10px] text-white/50 tracking-widest font-bold uppercase">Persona Integrated</span>
+          </div>
+        </motion.div>
 
-        {/* Text Content Overlay */}
-        {imagesLoaded && <Overlay scrollYProgress={rawScroll} />}
+        {/* Overlay text elements */}
+        {imagesLoaded && <Overlay scrollYProgress={scrollYProgress} />}
 
         {!imagesLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-50">
-             <div className="flex flex-col items-center gap-4">
-              <div className="w-8 h-8 border-2 border-white/5 border-t-white/40 rounded-full animate-spin" />
-              <p className="text-white/10 tracking-[0.4em] text-[10px] uppercase font-bold">Initializing Hologram</p>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-10 h-10 border-2 border-white/5 border-t-emerald-400 rounded-full animate-spin" />
+              <p className="text-white/20 tracking-widest text-[10px] uppercase font-bold">Booting Marketing-OS</p>
             </div>
           </div>
         )}
