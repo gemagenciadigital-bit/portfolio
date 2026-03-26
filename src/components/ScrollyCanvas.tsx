@@ -26,9 +26,11 @@ export default function ScrollyCanvas() {
     offset: ["start start", "end end"],
   });
 
+  const [currentEventIdx, setCurrentEventIdx] = useState(0);
+
   // Integrated Narrative & Code Events
   const terminalEvents = [
-    { type: "code", text: "> initializing marketing-os v1.0.4...", color: "text-blue-400" },
+    { type: "code", text: "> initializing marketing-os v2.0.4...", color: "text-blue-400" },
     { type: "narrative", text: "EZE", subtext: "Desarrollador Creativo.", color: "text-white" },
     { type: "code", text: "> loading neural_marketing_engine...", color: "text-white/30" },
     { type: "code", text: "> connecting to google-ads-api...", color: "text-blue-300" },
@@ -42,9 +44,6 @@ export default function ScrollyCanvas() {
     { type: "code", text: "> funnel active: ROI +240%", color: "text-emerald-500" },
     { type: "code", text: "portfolio.show_projects();", color: "text-blue-400" },
   ];
-
-  const visibleEventCount = useTransform(scrollYProgress, [0, 0.9], [0, terminalEvents.length]);
-  const currentEventIdx = Math.floor(visibleEventCount.get());
 
   const renderCanvas = () => {
     if (!canvasRef.current || !imagesRef.current.length) return;
@@ -124,10 +123,18 @@ export default function ScrollyCanvas() {
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (!imagesLoaded) return;
+    
+    // 1. Update Video Frame
     const frameIndex = Math.min(FRAME_COUNT - 1, Math.floor(latest * FRAME_COUNT));
     if (frameIndex !== currentFrameRef.current) {
       currentFrameRef.current = frameIndex;
       requestAnimationFrame(renderCanvas);
+    }
+
+    // 2. Update Terminal Text Reveal State
+    const nextIdx = Math.floor(latest * (terminalEvents.length + 1));
+    if (nextIdx !== currentEventIdx) {
+      setCurrentEventIdx(nextIdx);
     }
   });
 
