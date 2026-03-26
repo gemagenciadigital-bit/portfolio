@@ -153,14 +153,14 @@ export default function ScrollyCanvas() {
   const activeIdx = Math.floor(Math.max(0, currentEventIdx - 2));
 
   return (
-    <div ref={containerRef} className="relative h-[800vh] w-full bg-[#0a0a0a]">
-      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12">
+    <div ref={containerRef} className="relative h-[800vh] w-full bg-[#0a0a0a] overflow-x-hidden">
+      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12 overflow-x-hidden">
         
         {/* LEFT: Unified Terminal (Text-heavy center) */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex-1 w-full h-[55vh] md:h-[70vh] bg-black/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl relative flex flex-col"
+          className="flex-1 w-full max-w-full h-[55vh] md:h-[70vh] bg-black/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl relative flex flex-col"
         >
           {/* Terminal Window Decoration */}
           <div className="flex items-center gap-2 mb-8 border-b border-white/5 pb-4 shrink-0">
@@ -172,7 +172,7 @@ export default function ScrollyCanvas() {
             <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold">interface.sys</span>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-start text-center">
+          <div className="flex-1 flex flex-col items-center justify-start text-center overflow-hidden">
              {/* FIXED HEADER: Always Visible */}
              <div className="mb-10 w-full animate-in fade-in slide-in-from-top duration-1000">
                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
@@ -181,6 +181,24 @@ export default function ScrollyCanvas() {
                 <p className="text-cyan-400 text-sm md:text-base font-medium italic tracking-widest uppercase mt-2">
                   {fixedHeader.subtext}
                 </p>
+
+                {/* Integrated Scroll Indicator */}
+                <motion.div
+                   style={{ 
+                     opacity: useTransform(smoothProgress, [0, 0.03], [1, 0]),
+                     pointerEvents: 'none'
+                   }}
+                   className="mt-8 flex flex-col items-center gap-2"
+                >
+                   <span className="text-[10px] md:text-xs font-mono text-cyan-400/60 tracking-widest uppercase animate-pulse">
+                     {">>> scroll_suave_para_conectar."}
+                   </span>
+                   <motion.div
+                     animate={{ y: [0, 8, 0] }}
+                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                     className="w-px h-12 bg-gradient-to-b from-cyan-400/30 to-transparent"
+                   />
+                </motion.div>
              </div>
 
              {/* DYNAMIC SLOT: Replaces content on scroll */}
@@ -239,7 +257,7 @@ export default function ScrollyCanvas() {
         <motion.div 
            initial={{ x: 100, opacity: 0 }}
            animate={{ x: 0, opacity: 1 }}
-           className="flex-1 w-full h-[40vh] md:h-[70vh] relative group z-10"
+           className="flex-1 w-full max-w-full h-[40vh] md:h-[70vh] relative group z-10"
         >
           <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full" />
           
@@ -265,24 +283,6 @@ export default function ScrollyCanvas() {
             </div>
           </div>
         )}
-
-        {/* Technical Scroll Indicator (Manual Reveal) */}
-        <motion.div
-           style={{ 
-             opacity: useTransform(scrollYProgress, [0, 0.03], [1, 0]),
-             pointerEvents: 'none'
-           }}
-           className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2"
-        >
-           <span className="text-[10px] md:text-xs font-mono text-cyan-400/80 tracking-widest uppercase">
-             {">>> scroll_suave_para_conectar."}
-           </span>
-           <motion.div
-             animate={{ y: [0, 8, 0] }}
-             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-             className="w-px h-12 bg-gradient-to-b from-cyan-400/50 to-transparent"
-           />
-        </motion.div>
       </div>
     </div>
   );
