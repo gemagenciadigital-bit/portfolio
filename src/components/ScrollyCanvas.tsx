@@ -153,8 +153,8 @@ export default function ScrollyCanvas() {
   const activeIdx = Math.floor(Math.max(0, currentEventIdx - 2));
 
   return (
-    <div ref={containerRef} className="relative h-[800vh] w-full bg-[#0a0a0a] overflow-x-hidden">
-      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12 overflow-x-hidden">
+    <div ref={containerRef} className="relative h-[800vh] w-full bg-[#0a0a0a]">
+      <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12">
         
         {/* LEFT: Unified Terminal (Text-heavy center) */}
         <motion.div 
@@ -172,7 +172,7 @@ export default function ScrollyCanvas() {
             <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold">interface.sys</span>
           </div>
 
-          <div className="flex-1 flex flex-col items-center justify-start text-center overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-start text-center">
              {/* FIXED HEADER: Always Visible */}
              <div className="mb-10 w-full animate-in fade-in slide-in-from-top duration-1000">
                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
