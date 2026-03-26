@@ -30,19 +30,16 @@ export default function ScrollyCanvas() {
   const renderCanvas = () => {
     if (!canvasRef.current || !imagesRef.current.length) return;
     const canvas = canvasRef.current;
-    // Utilize alpha: false for slight compositor performance boost
     const ctx = canvas.getContext("2d", { alpha: false }); 
     if (!ctx) return;
 
     const img = imagesRef.current[currentFrameRef.current];
     if (!img || !img.width) return;
 
-    // 1. Setup High DPI Canvas sizing logic
     const dpr = window.devicePixelRatio || 1;
     const targetWidth = window.innerWidth;
     const targetHeight = window.innerHeight;
     
-    // Multiply by dpr for internal render buffer
     const nativeWidth = targetWidth * dpr;
     const nativeHeight = targetHeight * dpr;
     
@@ -51,52 +48,96 @@ export default function ScrollyCanvas() {
       canvas.height = nativeHeight;
     }
 
-    // 2. Mathematical Object-Fit: Cover
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    // --- RENDER LAYERS ---
+
+    // 1. BACKGROUND: Ambient Fill (Ambilight)
+    // We draw the same image STRETCHED and BLURRED to fill the screen
+    ctx.filter = "blur(60px) brightness(0.4) saturate(1.5)";
     const canvasRatio = nativeWidth / nativeHeight;
     const imgRatio = img.width / img.height;
     
-    let drawWidth = nativeWidth;
-    let drawHeight = nativeHeight;
-    let offsetX = 0;
-    let offsetY = 0;
+    let bgWidth = nativeWidth;
+    let bgHeight = nativeHeight;
+    let bgX = 0;
+    let bgY = 0;
 
     if (imgRatio > canvasRatio) {
-      // Image is proportionally wider than the canvas
-      drawWidth = nativeHeight * imgRatio;
-      offsetX = (nativeWidth - drawWidth) / 2;
+      bgWidth = nativeHeight * imgRatio;
+      bgX = (nativeWidth - bgWidth) / 2;
     } else {
-      // Image is proportionally taller
-      drawHeight = nativeWidth / imgRatio;
-      offsetY = (nativeHeight - drawHeight) / 2;
+      bgHeight = nativeWidth / imgRatio;
+      bgY = (nativeHeight - bgHeight) / 2;
+    }
+    
+    ctx.drawImage(img, bgX, bgY, bgWidth, bgHeight);
+    ctx.filter = "none"; // Reset filter
+
+    // 2. GENERATIVE GRID
+    const gridSize = 50 * dpr;
+    const scrollOffset = (scrollYProgress.get() * 200) * dpr;
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+    ctx.lineWidth = 1 * dpr;
+    
+    // Vertical lines
+    for (let x = (nativeWidth / 2) % gridSize; x < nativeWidth; x += gridSize) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, nativeHeight);
+    }
+    // Horizontal lines (moving with scroll)
+    for (let y = (nativeHeight / 2 + scrollOffset) % gridSize; y < nativeHeight; y += gridSize) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(nativeWidth, y);
+    }
+    ctx.stroke();
+
+    // 3. MAIN WORKSTATION VIEWPORT (The Video)
+    // We maintain a sharp resolution by not over-stretching
+    // Scale it to 80% of screen height or native width, whichever is smaller
+    const maxViewportWidth = nativeWidth * 0.85;
+    const maxViewportHeight = nativeHeight * 0.75;
+    
+    let finalWidth = img.width * (nativeHeight / 1080) * dpr; // Scale relative to 1080p height
+    let finalHeight = img.height * (nativeHeight / 1080) * dpr;
+
+    // Constrain to viewport limits
+    if (finalWidth > maxViewportWidth) {
+      const scale = maxViewportWidth / finalWidth;
+      finalWidth *= scale;
+      finalHeight *= scale;
+    }
+    if (finalHeight > maxViewportHeight) {
+      const scale = maxViewportHeight / finalHeight;
+      finalWidth *= scale;
+      finalHeight *= scale;
     }
 
-    // 3. High Quality Context settings
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    
-    ctx.fillStyle = "#121212";
-    ctx.fillRect(0, 0, nativeWidth, nativeHeight);
-    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+    const drawX = (nativeWidth - finalWidth) / 2;
+    const drawY = (nativeHeight - finalHeight) / 2;
 
-    // 4. Subtle Cinematic Overlay (Vignette)
-    // This makes the center elements (the face and UI) pop more
-    const gradient = ctx.createRadialGradient(
-      nativeWidth / 2, nativeHeight / 2, 0,
-      nativeWidth / 2, nativeHeight / 2, Math.max(nativeWidth, nativeHeight) * 0.8
-    );
-    gradient.addColorStop(0, "rgba(18, 18, 18, 0)");
-    gradient.addColorStop(1, "rgba(18, 18, 18, 0.7)");
+    // Draw viewport glow/border
+    ctx.shadowBlur = 40 * dpr;
+    ctx.shadowColor = "rgba(0, 150, 255, 0.2)";
     
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, nativeWidth, nativeHeight);
+    // Slight contrast/sharpness filter for the main image
+    ctx.filter = "contrast(1.1) brightness(1.05) saturate(1.1)";
+    ctx.drawImage(img, drawX, drawY, finalWidth, finalHeight);
+    ctx.filter = "none";
+    ctx.shadowBlur = 0;
+
+    // 4. SCAN LINE
+    const scanPos = (Date.now() % 4000 / 4000) * nativeHeight;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+    ctx.fillRect(0, scanPos, nativeWidth, 2 * dpr);
   };
 
   useEffect(() => {
     let active = true;
 
-    // Aggressive Progressive Preload Strategy
     const preloadImages = async () => {
-      // 1. Load First Frame IMMEDIATELY to unblock UI
       const firstImg = new Image();
       firstImg.src = getFrameSrc(0);
       await new Promise((resolve) => {
@@ -106,14 +147,12 @@ export default function ScrollyCanvas() {
       
       if (!active) return;
       imagesRef.current[0] = firstImg;
-      setImagesLoaded(true); // Unblock viewing instantly
+      setImagesLoaded(true);
       requestAnimationFrame(renderCanvas);
 
-      // 2. Parallel Background Fetching for the rest
       const loadPromises = [];
       for (let i = 1; i < FRAME_COUNT; i++) {
         const img = new Image();
-        // Browser queues these massively in parallel
         img.src = getFrameSrc(i);
         const p = new Promise<void>((resolve) => {
           img.onload = () => {
@@ -124,18 +163,24 @@ export default function ScrollyCanvas() {
         });
         loadPromises.push(p);
       }
-      
-      // Wait for all to cache silently
       Promise.all(loadPromises);
     };
 
     preloadImages();
 
-    // Listen for resize to recalculate canvas sizing and redraw
     window.addEventListener("resize", renderCanvas);
+    // Animation loop for scanning line and dynamic elements
+    let animId: number;
+    const animate = () => {
+      renderCanvas();
+      animId = requestAnimationFrame(animate);
+    };
+    animate();
+
     return () => {
       active = false;
       window.removeEventListener("resize", renderCanvas);
+      cancelAnimationFrame(animId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -143,7 +188,6 @@ export default function ScrollyCanvas() {
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (!imagesLoaded) return;
     
-    // Convert scroll 0-1 to frame 0-79
     const frameIndex = Math.min(
       FRAME_COUNT - 1,
       Math.floor(latest * FRAME_COUNT)
@@ -151,18 +195,18 @@ export default function ScrollyCanvas() {
     
     if (frameIndex !== currentFrameRef.current) {
       currentFrameRef.current = frameIndex;
-      requestAnimationFrame(renderCanvas);
+      // renderCanvas is now called through the animate loop
     }
   });
 
   return (
-    <div ref={containerRef} className="relative h-[500vh] w-full bg-[#121212]">
+    <div ref={containerRef} className="relative h-[500vh] w-full bg-[#0a0a0a]">
       <div className="sticky top-0 left-0 h-screen w-full overflow-hidden">
-        {/* Canvas rendering the scrollytelling background */}
+        {/* Canvas rendering the HUD experience */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0"
-          style={{ width: "100%", height: "100%" }}
+          className="absolute inset-0 w-full h-full"
+          style={{ imageRendering: "auto" }}
         />
         
         {/* Overlay text elements */}
@@ -170,8 +214,11 @@ export default function ScrollyCanvas() {
 
         {/* Loading State */}
         {!imagesLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#121212] z-50">
-            <p className="text-white/50 animate-pulse tracking-widest text-sm uppercase">Loading Experience</p>
+          <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-50">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-2 border-white/10 border-t-white rounded-full animate-spin" />
+              <p className="text-white/30 tracking-[0.3em] text-[10px] uppercase font-bold">Initializing System</p>
+            </div>
           </div>
         )}
       </div>
