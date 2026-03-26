@@ -28,21 +28,21 @@ export default function ScrollyCanvas() {
 
   const [currentEventIdx, setCurrentEventIdx] = useState(0);
 
-  // Integrated Narrative & Code Events
+  // Integrated Narrative & Code Events (Human-Centric & Strategic)
   const terminalEvents = [
-    { type: "code", text: "> initializing marketing-os v2.0.4...", color: "text-blue-400" },
+    { type: "code", text: "> inicializando arquitectura digital...", color: "text-blue-400" },
     { type: "narrative", text: "EZE", subtext: "Desarrollador Creativo.", color: "text-white" },
-    { type: "code", text: "> loading neural_marketing_engine...", color: "text-white/30" },
-    { type: "code", text: "> connecting to google-ads-api...", color: "text-blue-300" },
+    { type: "code", text: "> activando motor de crecimiento v3.0...", color: "text-white/30" },
+    { type: "code", text: "> sincronizando campañas en Meta Ads...", color: "text-blue-300" },
     { type: "narrative", text: "Construyo experiencias", subtext: "Digitales y de alto impacto.", color: "text-white" },
-    { type: "code", text: "> connected successfully. latency: 12ms", color: "text-emerald-400" },
-    { type: "code", text: "const roi = scale_impact(data_stream);", color: "text-purple-400" },
-    { type: "code", text: "if (conversion < benchmark) { optimize(); }", color: "text-yellow-200" },
+    { type: "code", text: "> sistema conectado. escalando resultados...", color: "text-emerald-400" },
+    { type: "code", text: "mejorar_ventas(clientes_reales);", color: "text-purple-400" },
+    { type: "code", text: "si (ventas < objetivo) { optimizar_todo(); }", color: "text-yellow-200" },
     { type: "narrative", text: "Uniendo diseño e ingeniería.", subtext: "Visuales de alto rendimiento.", color: "text-white" },
-    { type: "code", text: "ai.analyze_customer_journey(path);", color: "text-cyan-400" },
-    { type: "code", text: "> deploying AI-driven funnel...", color: "text-white" },
-    { type: "code", text: "> funnel active: ROI +240%", color: "text-emerald-500" },
-    { type: "code", text: "portfolio.show_projects();", color: "text-blue-400" },
+    { type: "code", text: "comprendiendo_el_camino_de_tu_cliente();", color: "text-cyan-400" },
+    { type: "code", text: "> lanzando sistema de captación inteligente...", color: "text-white" },
+    { type: "code", text: "> sistema activo. aumentando visibilidad...", color: "text-emerald-500" },
+    { type: "code", text: "ver_proyectos_exitosos();", color: "text-blue-400" },
   ];
 
   const renderCanvas = () => {
@@ -185,7 +185,9 @@ export default function ScrollyCanvas() {
                      </div>
                    ) : (
                      <div className="flex justify-center gap-3 text-[10px] md:text-xs text-white/50">
-                        <span className="text-white/10 select-none">[{i.toString().padStart(2, '0')}]</span>
+                        <span className="text-cyan-400 font-bold select-none drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+                          [{i.toString().padStart(2, '0')}]
+                        </span>
                         <span className={event.color}>{event.text}</span>
                      </div>
                    )}
