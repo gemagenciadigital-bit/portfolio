@@ -138,68 +138,87 @@ export default function ScrollyCanvas() {
     }
   });
 
+  // Dynamic Event Filtering: Separate the fixed from the active
+  const fixedHeader = terminalEvents[1]; // EZE
+  const activeEvents = terminalEvents.slice(2); 
+  const activeIdx = Math.floor(Math.max(0, currentEventIdx - 2));
+
   return (
     <div ref={containerRef} className="relative h-[800vh] w-full bg-[#0a0a0a]">
       <div className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12">
         
         {/* LEFT: Unified Terminal (Text-heavy center) */}
         <motion.div 
-          initial={{ x: -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          className="flex-1 w-full h-[50vh] md:h-[70vh] bg-black/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl relative"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex-1 w-full h-[55vh] md:h-[70vh] bg-black/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl relative flex flex-col"
         >
           {/* Terminal Window Decoration */}
-          <div className="flex items-center gap-2 mb-8 border-b border-white/5 pb-4">
+          <div className="flex items-center gap-2 mb-8 border-b border-white/5 pb-4 shrink-0">
             <div className="flex gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-red-500/30" />
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
               <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
             </div>
-            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold">digital_architect.sh v2.0.0</span>
+            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold">interface.sys</span>
           </div>
 
-          {/* Scrolling Event List */}
-          <div className="space-y-6 flex flex-col items-center text-center h-full">
-             {terminalEvents.map((event, i) => {
-               const isNarrative = event.type === "narrative";
-               const isVisible = i <= currentEventIdx;
-               
-               return (
-                 <motion.div
-                   key={i}
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0 }}
-                   transition={{ duration: 0.5 }}
-                   className={`w-full ${isNarrative ? "py-4" : "opacity-60"}`}
-                 >
-                   {isNarrative ? (
-                     <div className="flex flex-col items-center gap-2">
-                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
-                          {event.text}
-                        </h2>
-                        {event.subtext && (
-                          <p className="text-cyan-400 text-sm md:text-base font-medium italic tracking-widest uppercase">
-                            {event.subtext}
-                          </p>
-                        )}
-                     </div>
-                   ) : (
-                     <div className="flex justify-center gap-3 text-[10px] md:text-xs text-white/50">
-                        <span className="text-cyan-400 font-bold select-none drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
-                          [{i.toString().padStart(2, '0')}]
-                        </span>
-                        <span className={event.color}>{event.text}</span>
-                     </div>
-                   )}
-                 </motion.div>
-               );
-             })}
+          <div className="flex-1 flex flex-col items-center justify-start text-center">
+             {/* FIXED HEADER: Always Visible */}
+             <div className="mb-10 w-full animate-in fade-in slide-in-from-top duration-1000">
+                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
+                  {fixedHeader.text}
+                </h2>
+                <p className="text-cyan-400 text-sm md:text-base font-medium italic tracking-widest uppercase mt-2">
+                  {fixedHeader.subtext}
+                </p>
+             </div>
+
+             {/* DYNAMIC SLOT: Replaces content on scroll */}
+             <div className="w-full relative min-h-[120px] md:min-h-[200px] flex items-center justify-center">
+                {activeEvents.map((event, i) => {
+                  const isVisible = i === activeIdx;
+                  const isNarrative = event.type === "narrative";
+                  
+                  if (!isVisible) return null;
+
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      className="w-full"
+                    >
+                      {isNarrative ? (
+                        <div className="flex flex-col items-center gap-3">
+                           <h3 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-[1.1] drop-shadow-2xl">
+                             {event.text}
+                           </h3>
+                           {event.subtext && (
+                             <p className="text-cyan-400 text-xs md:text-sm font-medium italic tracking-[0.2em] uppercase">
+                               {event.subtext}
+                             </p>
+                           )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="flex justify-center gap-3 text-[10px] md:text-sm text-white/50 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                             <span className="text-cyan-400 font-bold tracking-widest">[{i.toString().padStart(2, '0')}]</span>
+                             <span className={event.color}>{event.text}</span>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
+             </div>
              
-             {/* Dynamic Cursor at active point */}
+             {/* Active Command Cursor */}
              <motion.div 
                animate={{ opacity: [1, 0] }}
                transition={{ duration: 0.6, repeat: Infinity }}
-               className="w-3 h-1 bg-blue-500/80 mt-2"
+               className="w-8 h-0.5 bg-blue-500/40 mt-auto mb-4"
              />
           </div>
 
