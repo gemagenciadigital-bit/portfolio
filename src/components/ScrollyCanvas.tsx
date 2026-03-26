@@ -154,55 +154,77 @@ export default function ScrollyCanvas() {
 
   return (
     <div ref={containerRef} style={{ overflowX: 'clip' }} className="relative h-[800vh] w-full bg-[#0a0a0a]">
-      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12">
+      <div style={{ overflowX: 'clip' }} className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-12 gap-6 md:gap-12 relative overflow-hidden">
         
-        {/* LEFT: Unified Terminal (Text-heavy center) */}
+        {/* BACKGROUND: Cinematic Video (Prominent on Mobile) */}
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex-1 w-full max-w-full h-[55vh] md:h-[70vh] bg-black/50 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-2xl relative flex flex-col"
+           initial={{ opacity: 0, scale: 1.1 }}
+           animate={{ opacity: 1, scale: 1 }}
+           className="absolute inset-0 md:relative md:flex-1 w-full h-full md:h-[70vh] z-10 pointer-events-none md:pointer-events-auto"
+        >
+          <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full opacity-40 md:opacity-100" />
+          
+          <div className="relative w-full h-full bg-black/20 md:bg-white/5 backdrop-blur-sm md:backdrop-blur-md border border-white/5 md:border-white/10 rounded-none md:rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <canvas ref={canvasRef} className="w-full h-full object-cover" />
+          </div>
+
+          {/* Status Badge (Desktop only or adjusted) */}
+          <div className="hidden md:flex absolute top-6 left-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 items-center gap-3">
+             <div className="relative w-2 h-2">
+               <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping" />
+               <div className="absolute inset-0 bg-blue-400 rounded-full" />
+             </div>
+             <span className="text-[9px] text-white/60 tracking-[0.3em] font-bold uppercase">Streaming live protocol</span>
+          </div>
+        </motion.div>
+
+        {/* HUD: Unified Terminal (Floating over video on Mobile) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute bottom-6 inset-x-4 h-[48vh] md:relative md:flex-1 md:inset-auto md:h-[70vh] z-20 bg-black/40 md:bg-black/50 backdrop-blur-3xl md:backdrop-blur-2xl border border-white/10 rounded-[2.5rem] md:rounded-3xl p-6 md:p-10 font-mono overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col"
         >
           {/* Terminal Window Decoration */}
-          <div className="flex items-center gap-2 mb-8 border-b border-white/5 pb-4 shrink-0">
+          <div className="flex items-center gap-2 mb-4 md:mb-8 border-b border-white/5 pb-4 shrink-0">
             <div className="flex gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-red-500/30" />
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30" />
               <div className="w-2.5 h-2.5 rounded-full bg-green-500/30" />
             </div>
-            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold">interface.sys</span>
+            <span className="ml-2 text-[10px] text-white/20 tracking-[0.4em] uppercase font-bold italic">hud.architecture.v4</span>
           </div>
 
           <div className="flex-1 flex flex-col items-center justify-start text-center">
-             {/* FIXED HEADER: Always Visible */}
-             <div className="mb-2 w-full animate-in fade-in slide-in-from-top duration-1000">
-                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
+             {/* FIXED HEADER: Branding */}
+             <div className="mb-2 w-full">
+                <h2 className="text-3xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none drop-shadow-2xl">
                   {fixedHeader.text}
                 </h2>
-                <p className="text-cyan-400 text-sm md:text-base font-medium italic tracking-widest uppercase mt-2">
+                <p className="text-cyan-400 text-[10px] md:text-base font-medium italic tracking-widest uppercase mt-2">
                   {fixedHeader.subtext}
                 </p>
 
-                {/* Integrated Scroll Indicator */}
+                {/* Integrated Scroll Indicator (More subtle) */}
                 <motion.div
                    style={{ 
                      opacity: useTransform(smoothProgress, [0, 0.03], [1, 0]),
                      pointerEvents: 'none'
                    }}
-                   className="mt-6 flex flex-col items-center gap-2"
+                   className="mt-4 flex flex-col items-center gap-1"
                 >
-                   <span className="text-[10px] md:text-xs font-mono text-cyan-400/60 tracking-widest uppercase animate-pulse">
+                   <span className="text-[9px] md:text-xs font-mono text-cyan-400/50 tracking-widest uppercase italic">
                      {">>> scroll_suave_para_conectar."}
                    </span>
                    <motion.div
-                     animate={{ y: [0, 8, 0] }}
+                     animate={{ y: [0, 4, 0] }}
                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                     className="w-px h-12 bg-gradient-to-b from-cyan-400/30 to-transparent"
+                     className="w-px h-8 bg-gradient-to-b from-cyan-400/20 to-transparent"
                    />
                 </motion.div>
              </div>
 
-             {/* DYNAMIC SLOT: Replaces content on scroll (Aligned Top) */}
-             <div className="w-full relative min-h-[140px] md:min-h-[220px] flex items-start justify-center pt-0 mt-4">
+             {/* DYNAMIC SLOT: Content aligned below the branding */}
+             <div className="w-full relative min-h-[140px] md:min-h-[220px] flex items-start justify-center pt-0 mt-2">
                 {activeEvents.map((event, i) => {
                   const isVisible = i === activeIdx;
                   const isNarrative = event.type === "narrative";
@@ -214,24 +236,24 @@ export default function ScrollyCanvas() {
                       key={i}
                       initial={{ opacity: 0, scale: 0.98, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      exit={{ opacity: 0, scale: 1.02 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
                       className="w-full"
                     >
                       {isNarrative ? (
-                        <div className="flex flex-col items-center gap-3">
-                           <h3 className="text-2xl md:text-4xl font-extrabold text-white tracking-tighter uppercase leading-[1.1] drop-shadow-2xl px-2">
+                        <div className="flex flex-col items-center gap-2">
+                           <h3 className="text-2xl md:text-5xl font-black text-white tracking-tighter uppercase leading-[1.1] drop-shadow-2xl px-2">
                              {event.text}
                            </h3>
                            {event.subtext && (
-                             <p className="text-cyan-400 text-[10px] md:text-xs font-medium italic tracking-[0.2em] uppercase">
+                             <p className="text-cyan-400 text-[10px] md:text-sm font-medium italic tracking-[0.2em] uppercase">
                                {event.subtext}
                              </p>
                            )}
                         </div>
                       ) : (
                         <div className="flex flex-col items-center gap-2">
-                          <div className="flex justify-center gap-3 text-[10px] md:text-sm text-white/50 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 mx-auto">
+                          <div className="flex justify-center gap-3 text-[9px] md:text-sm text-white/50 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 mx-auto backdrop-blur-sm">
                              <span className="text-cyan-400 font-bold tracking-widest">[{i.toString().padStart(2, '0')}]</span>
                              <span className={event.color}>{event.text}</span>
                           </div>
@@ -242,45 +264,23 @@ export default function ScrollyCanvas() {
                 })}
              </div>
              
-             {/* Active Command Cursor */}
+             {/* Cursor decorative */}
              <motion.div 
                animate={{ opacity: [1, 0] }}
                transition={{ duration: 0.6, repeat: Infinity }}
-               className="w-8 h-0.5 bg-blue-500/40 mt-auto mb-4"
+               className="w-6 h-0.5 bg-cyan-500/30 mt-auto mb-2"
              />
           </div>
 
-          {/* Background Decorative Grid */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
-        </motion.div>
-
-        {/* RIGHT: Visual Interaction */}
-        <motion.div 
-           initial={{ x: 100, opacity: 0 }}
-           animate={{ x: 0, opacity: 1 }}
-           className="flex-1 w-full max-w-full h-[40vh] md:h-[70vh] relative group z-10"
-        >
-          <div className="absolute inset-0 bg-blue-600/5 blur-[120px] rounded-full" />
-          
-          <div className="relative w-full h-full bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <canvas ref={canvasRef} className="w-full h-full" />
-          </div>
-
-          {/* Status Badge */}
-          <div className="absolute top-6 left-6 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 flex items-center gap-3">
-             <div className="relative w-2 h-2">
-               <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping" />
-               <div className="absolute inset-0 bg-blue-400 rounded-full" />
-             </div>
-             <span className="text-[9px] text-white/60 tracking-[0.3em] font-bold uppercase">Streaming live protocol</span>
-          </div>
+          {/* Grid Decorative Layer */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.02] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
         </motion.div>
 
         {!imagesLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-50">
             <div className="flex flex-col items-center gap-6">
-              <div className="w-12 h-12 border-2 border-white/5 border-t-blue-500 rounded-full animate-spin" />
-              <p className="text-white/10 tracking-[0.5em] text-[10px] uppercase font-bold animate-pulse">Syncing Persona</p>
+              <div className="w-12 h-12 border-2 border-white/5 border-t-cyan-500 rounded-full animate-spin" />
+              <p className="text-white/10 tracking-[0.5em] text-[10px] uppercase font-bold animate-pulse italic">Syncing Protocol</p>
             </div>
           </div>
         )}
