@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useScroll, useMotionValueEvent } from "framer-motion";
+import { useScroll, useMotionValueEvent, motion, useTransform } from "framer-motion";
 import Overlay from "./Overlay";
 
 /**
@@ -22,27 +22,30 @@ export default function ScrollyCanvas() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const currentFrameRef = useRef(0);
 
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawScroll } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
+  // Parallax Values for different layers
+  const yHuman = useTransform(rawScroll, [0, 1], [0, -100]); // Slower movement
+  const yDataFast = useTransform(rawScroll, [0, 1], [0, -400]); // Faster movement
+  const yDataSlow = useTransform(rawScroll, [0, 1], [0, -200]); // Mid movement
+  const opacityHuman = useTransform(rawScroll, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);
+
   const renderCanvas = () => {
     if (!canvasRef.current || !imagesRef.current.length) return;
     const canvas = canvasRef.current;
-    // Utilize alpha: false for slight compositor performance boost
-    const ctx = canvas.getContext("2d", { alpha: false }); 
+    const ctx = canvas.getContext("2d"); 
     if (!ctx) return;
 
     const img = imagesRef.current[currentFrameRef.current];
     if (!img || !img.width) return;
 
-    // 1. Setup High DPI Canvas sizing logic
     const dpr = window.devicePixelRatio || 1;
-    const targetWidth = window.innerWidth;
-    const targetHeight = window.innerHeight;
+    const targetWidth = canvas.clientWidth;
+    const targetHeight = canvas.clientHeight;
     
-    // Multiply by dpr for internal render buffer
     const nativeWidth = targetWidth * dpr;
     const nativeHeight = targetHeight * dpr;
     
@@ -51,7 +54,7 @@ export default function ScrollyCanvas() {
       canvas.height = nativeHeight;
     }
 
-    // 2. Mathematical Object-Fit: Cover
+    // Centered Object-Fit: Contain logic within the canvas
     const canvasRatio = nativeWidth / nativeHeight;
     const imgRatio = img.width / img.height;
     
@@ -61,46 +64,29 @@ export default function ScrollyCanvas() {
     let offsetY = 0;
 
     if (imgRatio > canvasRatio) {
-      // Image is proportionally wider than the canvas (fill screen height)
-      drawWidth = nativeHeight * imgRatio;
-      offsetX = (nativeWidth - drawWidth) / 2;
-    } else {
-      // Image is proportionally taller (fill screen width)
+      drawWidth = nativeWidth;
       drawHeight = nativeWidth / imgRatio;
       offsetY = (nativeHeight - drawHeight) / 2;
+    } else {
+      drawHeight = nativeHeight;
+      drawWidth = nativeHeight * imgRatio;
+      offsetX = (nativeWidth - drawWidth) / 2;
     }
 
-    // 3. High Quality Context settings
+    ctx.clearRect(0, 0, nativeWidth, nativeHeight);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     
-    // Clear background
-    ctx.fillStyle = "#121212";
-    ctx.fillRect(0, 0, nativeWidth, nativeHeight);
-
-    // Apply a slight contrast & sharpness boost during draw
-    ctx.filter = "contrast(1.1) brightness(1.05) saturate(1.1)";
+    // Slight Holographic Glow/Filter
+    ctx.filter = "contrast(1.1) brightness(1.2) saturate(1.1)";
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     ctx.filter = "none";
-
-    // 4. Subtle Cinematic Overlay (Vignette)
-    const gradient = ctx.createRadialGradient(
-      nativeWidth / 2, nativeHeight / 2, 0,
-      nativeWidth / 2, nativeHeight / 2, Math.max(nativeWidth, nativeHeight) * 0.8
-    );
-    gradient.addColorStop(0, "rgba(18, 18, 18, 0)");
-    gradient.addColorStop(1, "rgba(18, 18, 18, 0.6)");
-    
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, nativeWidth, nativeHeight);
   };
 
   useEffect(() => {
     let active = true;
 
-    // Aggressive Progressive Preload Strategy
     const preloadImages = async () => {
-      // 1. Load First Frame IMMEDIATELY to unblock UI
       const firstImg = new Image();
       firstImg.src = getFrameSrc(0);
       await new Promise((resolve) => {
@@ -110,10 +96,9 @@ export default function ScrollyCanvas() {
       
       if (!active) return;
       imagesRef.current[0] = firstImg;
-      setImagesLoaded(true); // Unblock viewing instantly
+      setImagesLoaded(true);
       requestAnimationFrame(renderCanvas);
 
-      // 2. Parallel Background Fetching for the rest
       const loadPromises = [];
       for (let i = 1; i < FRAME_COUNT; i++) {
         const img = new Image();
@@ -127,13 +112,11 @@ export default function ScrollyCanvas() {
         });
         loadPromises.push(p);
       }
-      
       Promise.all(loadPromises);
     };
 
     preloadImages();
 
-    // Listen for resize to recalculate canvas sizing and redraw
     window.addEventListener("resize", renderCanvas);
     return () => {
       active = false;
@@ -142,15 +125,9 @@ export default function ScrollyCanvas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+  useMotionValueEvent(rawScroll, "change", (latest) => {
     if (!imagesLoaded) return;
-    
-    // Convert scroll 0-1 to frame index
-    const frameIndex = Math.min(
-      FRAME_COUNT - 1,
-      Math.floor(latest * FRAME_COUNT)
-    );
-    
+    const frameIndex = Math.min(FRAME_COUNT - 1, Math.floor(latest * FRAME_COUNT));
     if (frameIndex !== currentFrameRef.current) {
       currentFrameRef.current = frameIndex;
       requestAnimationFrame(renderCanvas);
@@ -158,22 +135,45 @@ export default function ScrollyCanvas() {
   });
 
   return (
-    <div ref={containerRef} className="relative h-[500vh] w-full bg-[#121212]">
-      <div className="sticky top-0 left-0 h-screen w-full overflow-hidden">
-        {/* Canvas rendering the full-screen cinematic background */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0"
-          style={{ width: "100%", height: "100%" }}
-        />
-        
-        {/* Overlay text elements */}
-        {imagesLoaded && <Overlay scrollYProgress={scrollYProgress} />}
+    <div ref={containerRef} className="relative h-[600vh] w-full bg-[#0a0a0a] overflow-hidden">
+      {/* Background Visual Layer: Fixed Particle/Dot Mesh */}
+      <div className="fixed inset-0 pointer-events-none opacity-20">
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px]" />
+      </div>
 
-        {/* Loading State */}
+      <div className="sticky top-0 h-screen w-full flex items-center justify-center">
+        {/* PARALLAX LAYER 1: The Human (Canvas) */}
+        <motion.div 
+          style={{ y: yHuman, opacity: opacityHuman }}
+          className="relative w-[80vw] h-[70vh] max-w-4xl z-10"
+        >
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full drop-shadow-[0_0_50px_rgba(0,180,255,0.2)]"
+          />
+        </motion.div>
+
+        {/* PARALLAX LAYER 2: Floating Digital Assets (Fast) */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <motion.div style={{ y: yDataFast }} className="absolute top-[20%] left-[10%] text-blue-400/30 text-8xl font-black italic">ROI</motion.div>
+          <motion.div style={{ y: yDataSlow }} className="absolute top-[60%] right-[15%] text-purple-400/30 text-7xl font-black transition-colors">DATA</motion.div>
+          <motion.div style={{ y: yDataFast }} className="absolute bottom-[10%] left-[20%] text-emerald-400/20 text-9xl font-black">AI</motion.div>
+          <motion.div style={{ y: yDataSlow }} className="absolute top-[40%] left-[5%] text-white/10 text-6xl font-black">ADS</motion.div>
+          <motion.div style={{ y: yDataFast }} className="absolute top-[15%] right-[5%] text-cyan-400/20 text-8xl font-black tracking-tighter">SEO</motion.div>
+        </div>
+
+        {/* PARALLAX LAYER 3: Dynamic Glows */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/4 -left-20 w-80 h-80 bg-blue-600/10 blur-[120px] rounded-full" />
+          <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-purple-600/10 blur-[120px] rounded-full" />
+        </div>
+
+        {/* Overlay Content */}
+        {imagesLoaded && <Overlay scrollYProgress={rawScroll} />}
+
         {!imagesLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#121212] z-50">
-            <p className="text-white/50 animate-pulse tracking-widest text-sm uppercase">Loading High-Definition Experience</p>
+          <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a] z-50">
+            <p className="text-white/20 tracking-widest text-[10px] uppercase font-bold animate-pulse">Synchronizing Marketing Interface</p>
           </div>
         )}
       </div>
