@@ -9,7 +9,7 @@ import { useScroll, useMotionValueEvent, motion, useSpring, useTransform } from 
  */
 const getFrameSrc = (index: number) => {
   const paddedIndex = index.toString().padStart(2, "0");
-  return `/portfolio/sequence/gifHero/frame_${paddedIndex}_delay-0.062s.webp`;
+  return `/sequence/gifHero/frame_${paddedIndex}_delay-0.062s.webp`;
 };
 
 const FRAME_COUNT = 81;
